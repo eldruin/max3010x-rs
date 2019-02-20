@@ -18,6 +18,8 @@ TODO
 Datasheet:
 - TODO
 
+This driver should be compatible at least with the devices: MAX30102.
+
 ### Usage
 
 Please find additional examples using hardware in this repository: [driver-examples]
