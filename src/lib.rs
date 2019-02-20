@@ -39,8 +39,8 @@ const DEVICE_ADDRESS: u8 = 0b1010111;
 struct Register;
 
 impl Register {
-    const REV_ID : u8 = 0xFE;
-    const PART_ID : u8 = 0xFF;
+    const REV_ID: u8 = 0xFE;
+    const PART_ID: u8 = 0xFF;
 }
 
 /// MAX3010x device driver.
@@ -52,13 +52,11 @@ pub struct Max3010x<I2C> {
 
 impl<I2C, E> Max3010x<I2C>
 where
-    I2C: i2c::Write<Error = E>
+    I2C: i2c::Write<Error = E>,
 {
     /// Create new instance of the MAX3010x device.
     pub fn new(i2c: I2C) -> Self {
-        Max3010x {
-            i2c
-        }
+        Max3010x { i2c }
     }
 
     /// Destroy driver instance, return I²C bus instance.
@@ -69,7 +67,7 @@ where
 
 impl<I2C, E> Max3010x<I2C>
 where
-    I2C: i2c::WriteRead<Error = E>
+    I2C: i2c::WriteRead<Error = E>,
 {
     /// Get revision ID
     pub fn get_revision_id(&mut self) -> Result<u8, Error<E>> {
@@ -89,4 +87,3 @@ where
         Ok(data[0])
     }
 }
-

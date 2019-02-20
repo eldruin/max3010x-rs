@@ -7,8 +7,8 @@ pub const DEV_ADDR: u8 = 0b1010111;
 pub struct Register;
 #[allow(unused)]
 impl Register {
-    pub const REV_ID : u8 = 0xFE;
-    pub const PART_ID : u8 = 0xFF;
+    pub const REV_ID: u8 = 0xFE;
+    pub const PART_ID: u8 = 0xFF;
 }
 
 pub fn new(transactions: &[I2cTrans]) -> Max3010x<I2cMock> {
