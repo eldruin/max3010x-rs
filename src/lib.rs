@@ -73,7 +73,7 @@ where
     pub fn get_revision_id(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0];
         self.i2c
-            .write_read(DEVICE_ADDRESS, &[0xFE], &mut data)
+            .write_read(DEVICE_ADDRESS, &[Register::REV_ID], &mut data)
             .map_err(Error::I2C)?;
         Ok(data[0])
     }
@@ -82,7 +82,7 @@ where
     pub fn get_part_id(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0];
         self.i2c
-            .write_read(DEVICE_ADDRESS, &[0xFF], &mut data)
+            .write_read(DEVICE_ADDRESS, &[Register::PART_ID], &mut data)
             .map_err(Error::I2C)?;
         Ok(data[0])
     }
