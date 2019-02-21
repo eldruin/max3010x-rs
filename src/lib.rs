@@ -88,9 +88,8 @@ where
     /// This starts a temperature measurement if none is currently ongoing.
     /// When the measurement is finished, returns the result.
     pub fn read_temperature(&mut self) -> nb::Result<f32, Error<E>> {
-        let mut data = [0];
-        self.read_data(Register::TEMP_CONFIG, &mut data).map_err(nb::Error::Other)?;
-        if data[0] & BitFlags::TEMP_EN != 0 {
+        let config = self.read_register(Register::TEMP_CONFIG).map_err(nb::Error::Other)?;
+        if config & BitFlags::TEMP_EN != 0 {
             return Err(nb::Error::WouldBlock)
         }
         else {
@@ -130,15 +129,17 @@ where
 
     /// Get revision ID
     pub fn get_revision_id(&mut self) -> Result<u8, Error<E>> {
-        let mut data = [0];
-        self.read_data(Register::REV_ID, &mut data)?;
-        Ok(data[0])
+        self.read_register(Register::REV_ID)
     }
 
     /// Get part ID
     pub fn get_part_id(&mut self) -> Result<u8, Error<E>> {
+        self.read_register(Register::PART_ID)
+    }
+
+    fn read_register(&mut self, register: u8) -> Result<u8, Error<E>> {
         let mut data = [0];
-        self.read_data(Register::PART_ID, &mut data)?;
+        self.read_data(register, &mut data)?;
         Ok(data[0])
     }
 
