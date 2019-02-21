@@ -91,6 +91,6 @@ fn can_read_temperature() {
     let mut dev = new(&transactions);
     assert_would_block!(dev.read_temperature());
     let result = dev.read_temperature().unwrap();
-    assert_eq!(-127.5, result);
+    assert_near!(-127.5, result, 0.2);
     destroy(dev);
 }

@@ -37,3 +37,10 @@ macro_rules! assert_would_block {
         }
     };
 }
+
+ #[macro_export]
+ macro_rules! assert_near {
+     ($left:expr, $right:expr, $eps:expr) => {
+        assert!(($left - $right) < $eps && ($right - $left) < $eps);
+     };
+ }
