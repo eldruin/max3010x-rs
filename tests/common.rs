@@ -41,9 +41,20 @@ macro_rules! assert_would_block {
     };
 }
 
- #[macro_export]
- macro_rules! assert_near {
-     ($left:expr, $right:expr, $eps:expr) => {
+#[macro_export]
+macro_rules! assert_near {
+    ($left:expr, $right:expr, $eps:expr) => {
         assert!(($left - $right) < $eps && ($right - $left) < $eps);
-     };
- }
+    };
+}
+
+#[test]
+fn assert_near_can_succeed() {
+    assert_near!(1.0, 1.01, 0.1);
+}
+
+#[test]
+#[should_panic]
+fn assert_near_can_fail() {
+    assert_near!(1.0, 4.0, 0.1);
+}
