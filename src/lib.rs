@@ -89,18 +89,14 @@ where
     /// When the measurement is finished, returns the result.
     pub fn read_temperature(&mut self) -> nb::Result<f32, Error<E>> {
         let mut data = [0];
-        self.i2c
-            .write_read(DEVICE_ADDRESS, &[Register::TEMP_CONFIG], &mut data)
-            .map_err(Error::I2C).map_err(nb::Error::Other)?;
+        self.read_data(Register::TEMP_CONFIG, &mut data).map_err(nb::Error::Other)?;
         if data[0] & BitFlags::TEMP_EN != 0 {
             return Err(nb::Error::WouldBlock)
         }
         else {
             if self.temperature_measurement_started {
                 let mut data = [0, 0];
-                self.i2c
-                    .write_read(DEVICE_ADDRESS, &[Register::TEMP_INT], &mut data)
-                    .map_err(Error::I2C).map_err(nb::Error::Other)?;
+                self.read_data(Register::TEMP_INT, &mut data).map_err(nb::Error::Other)?;
                 let temp_int = data[0] as i8;
                 let temp_frac = f32::from(data[1]) * 0.0625;
                 let temp = f32::from(temp_int) + temp_frac;
@@ -120,9 +116,7 @@ where
     /// Get number of samples available for reading from FIFO
     pub fn get_available_sample_count(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0; 3];
-        self.i2c
-            .write_read(DEVICE_ADDRESS, &[Register::FIFO_WR_PTR], &mut data)
-            .map_err(Error::I2C)?;
+        self.read_data(Register::FIFO_WR_PTR, &mut data)?;
         let wr_ptr = data[0];
         let rd_ptr = data[2];
         let has_rolled_over = rd_ptr > wr_ptr;
@@ -137,18 +131,20 @@ where
     /// Get revision ID
     pub fn get_revision_id(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0];
-        self.i2c
-            .write_read(DEVICE_ADDRESS, &[Register::REV_ID], &mut data)
-            .map_err(Error::I2C)?;
+        self.read_data(Register::REV_ID, &mut data)?;
         Ok(data[0])
     }
 
     /// Get part ID
     pub fn get_part_id(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0];
-        self.i2c
-            .write_read(DEVICE_ADDRESS, &[Register::PART_ID], &mut data)
-            .map_err(Error::I2C)?;
+        self.read_data(Register::PART_ID, &mut data)?;
         Ok(data[0])
+    }
+
+    fn read_data(&mut self, register: u8, data: &mut [u8]) -> Result<(), Error<E>> {
+        self.i2c
+            .write_read(DEVICE_ADDRESS, &[register], data)
+            .map_err(Error::I2C)
     }
 }
