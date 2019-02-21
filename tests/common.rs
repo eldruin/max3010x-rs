@@ -1,5 +1,6 @@
 extern crate max3010x;
 use self::max3010x::Max3010x;
+extern crate embedded_hal_mock as hal;
 use hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
 pub const DEV_ADDR: u8 = 0b101_0111;
