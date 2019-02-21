@@ -31,7 +31,7 @@ fn can_get_part_id() {
 }
 
 macro_rules! available_sample_count_test {
-    ($name:ident, $wr_ptr:expr, $rd_ptr:expr, $expected:expr) => (
+    ($name:ident, $wr_ptr:expr, $rd_ptr:expr, $expected:expr) => {
         #[test]
         fn $name() {
             let transactions = [I2cTrans::write_read(
@@ -44,7 +44,7 @@ macro_rules! available_sample_count_test {
             assert_eq!($expected, count);
             destroy(dev);
         }
-    )
+    };
 }
 
 mod available_sample_count {
@@ -55,18 +55,12 @@ mod available_sample_count {
     available_sample_count_test!(rollover, 0, 1, 31);
 }
 
-
 #[test]
 fn can_start_temp_conversion() {
-    let transactions = [I2cTrans::write_read(
-        DEV_ADDR,
-        vec![Reg::TEMP_CONFIG],
-        vec![0],
-    ),
-    I2cTrans::write(
-        DEV_ADDR,
-        vec![Reg::TEMP_CONFIG, BF::TEMP_EN],
-    )];
+    let transactions = [
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::TEMP_CONFIG], vec![0]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::TEMP_CONFIG, BF::TEMP_EN]),
+    ];
     let mut dev = new(&transactions);
     let result = dev.read_temperature();
     assert_would_block!(result);
@@ -88,25 +82,12 @@ fn blocks_until_temp_ready() {
 
 #[test]
 fn can_read_temperature() {
-    let transactions = [I2cTrans::write_read(
-        DEV_ADDR,
-        vec![Reg::TEMP_CONFIG],
-        vec![0],
-    ),
-    I2cTrans::write(
-        DEV_ADDR,
-        vec![Reg::TEMP_CONFIG, BF::TEMP_EN],
-    ),
-    I2cTrans::write_read(
-        DEV_ADDR,
-        vec![Reg::TEMP_CONFIG],
-        vec![0],
-    ),
-    I2cTrans::write_read(
-        DEV_ADDR,
-        vec![Reg::TEMP_INT],
-        vec![-128_i8 as u8, 0b0000_1000],
-    )];
+    let transactions = [
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::TEMP_CONFIG], vec![0]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::TEMP_CONFIG, BF::TEMP_EN]),
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::TEMP_CONFIG], vec![0]),
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::TEMP_INT], vec![-128_i8 as u8, 8]),
+    ];
     let mut dev = new(&transactions);
     assert_would_block!(dev.read_temperature());
     let result = dev.read_temperature().unwrap();

@@ -20,7 +20,6 @@ impl BitFlags {
     pub const TEMP_EN: u8 = 0x01;
 }
 
-
 pub fn new(transactions: &[I2cTrans]) -> Max3010x<I2cMock> {
     Max3010x::new(I2cMock::new(&transactions))
 }
@@ -31,10 +30,10 @@ pub fn destroy(sensor: Max3010x<I2cMock>) {
 
 #[macro_export]
 macro_rules! assert_would_block {
-    ($result:expr) => (
+    ($result:expr) => {
         match $result {
             Err(nb::Error::WouldBlock) => (),
             _ => panic!("Did not return nb::Error::WouldBlock"),
         }
-    )
+    };
 }
