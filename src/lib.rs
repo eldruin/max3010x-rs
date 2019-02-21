@@ -39,6 +39,7 @@ const DEVICE_ADDRESS: u8 = 0b1010111;
 struct Register;
 
 impl Register {
+    const FIFO_WR_PTR: u8 = 0x04;
     const REV_ID: u8 = 0xFE;
     const PART_ID: u8 = 0xFF;
 }
@@ -69,6 +70,23 @@ impl<I2C, E> Max3010x<I2C>
 where
     I2C: i2c::WriteRead<Error = E>,
 {
+    /// Get number of samples available for reading from FIFO
+    pub fn get_available_sample_count(&mut self) -> Result<u8, Error<E>> {
+        let mut data = [0; 3];
+        self.i2c
+            .write_read(DEVICE_ADDRESS, &[Register::FIFO_WR_PTR], &mut data)
+            .map_err(Error::I2C)?;
+        let wr_ptr = data[0];
+        let rd_ptr = data[2];
+        let has_rolled_over = rd_ptr > wr_ptr;
+        if has_rolled_over {
+            Ok(32 - rd_ptr + wr_ptr)
+        }
+        else {
+            Ok(wr_ptr - rd_ptr)
+        }
+    }
+
     /// Get revision ID
     pub fn get_revision_id(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0];

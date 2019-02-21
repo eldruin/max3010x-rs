@@ -7,6 +7,7 @@ pub const DEV_ADDR: u8 = 0b1010111;
 pub struct Register;
 #[allow(unused)]
 impl Register {
+    pub const FIFO_WR_PTR: u8 = 0x04;
     pub const REV_ID: u8 = 0xFE;
     pub const PART_ID: u8 = 0xFF;
 }
