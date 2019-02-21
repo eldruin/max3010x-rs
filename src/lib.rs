@@ -90,25 +90,23 @@ where
     pub fn read_temperature(&mut self) -> nb::Result<f32, Error<E>> {
         let config = self.read_register(Register::TEMP_CONFIG).map_err(nb::Error::Other)?;
         if config & BitFlags::TEMP_EN != 0 {
-            return Err(nb::Error::WouldBlock)
+            return Err(nb::Error::WouldBlock);
+        }
+        if self.temperature_measurement_started {
+            let mut data = [0, 0];
+            self.read_data(Register::TEMP_INT, &mut data).map_err(nb::Error::Other)?;
+            let temp_int = data[0] as i8;
+            let temp_frac = f32::from(data[1]) * 0.0625;
+            let temp = f32::from(temp_int) + temp_frac;
+            self.temperature_measurement_started = false;
+            Ok(temp)
         }
         else {
-            if self.temperature_measurement_started {
-                let mut data = [0, 0];
-                self.read_data(Register::TEMP_INT, &mut data).map_err(nb::Error::Other)?;
-                let temp_int = data[0] as i8;
-                let temp_frac = f32::from(data[1]) * 0.0625;
-                let temp = f32::from(temp_int) + temp_frac;
-                self.temperature_measurement_started = false;
-                return Ok(temp)
-            }
-            else {
-                self.i2c
-                    .write(DEVICE_ADDRESS, &[Register::TEMP_CONFIG, BitFlags::TEMP_EN])
-                    .map_err(Error::I2C).map_err(nb::Error::Other)?;
-                self.temperature_measurement_started = true;
-                return Err(nb::Error::WouldBlock)
-            }
+            self.i2c
+                .write(DEVICE_ADDRESS, &[Register::TEMP_CONFIG, BitFlags::TEMP_EN])
+                .map_err(Error::I2C).map_err(nb::Error::Other)?;
+            self.temperature_measurement_started = true;
+            Err(nb::Error::WouldBlock)
         }
     }
 
