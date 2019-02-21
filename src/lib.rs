@@ -35,7 +35,7 @@ pub enum Error<E> {
     I2C(E),
 }
 
-const DEVICE_ADDRESS: u8 = 0b1010111;
+const DEVICE_ADDRESS: u8 = 0b101_0111;
 
 struct Register;
 
