@@ -94,3 +94,11 @@ fn can_read_temperature() {
     assert_near!(-127.5, result, 0.2);
     destroy(dev);
 }
+
+#[test]
+fn can_shutdown() {
+    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::MODE, BF::SHUTDOWN])];
+    let mut dev = new(&transactions);
+    dev.shutdown().unwrap();
+    destroy(dev);
+}

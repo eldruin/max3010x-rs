@@ -41,6 +41,7 @@ struct Register;
 
 impl Register {
     const FIFO_WR_PTR: u8 = 0x04;
+    const MODE: u8 = 0x09;
     const TEMP_INT: u8 = 0x1F;
     const TEMP_CONFIG: u8 = 0x21;
     const REV_ID: u8 = 0xFE;
@@ -49,7 +50,21 @@ impl Register {
 
 struct BitFlags;
 impl BitFlags {
-    const TEMP_EN: u8 = 0x01;
+    const TEMP_EN: u8 = 0b0000_0001;
+    const SHUTDOWN: u8 = 0b1000_0000;
+}
+
+#[derive(Debug, Default, Clone, PartialEq)]
+struct Config {
+    bits: u8,
+}
+
+impl Config {
+    fn with_high(&self, mask: u8) -> Self {
+        Config {
+            bits: self.bits | mask,
+        }
+    }
 }
 
 /// MAX3010x device driver.
@@ -58,6 +73,7 @@ pub struct Max3010x<I2C> {
     /// The concrete I²C device implementation.
     i2c: I2C,
     temperature_measurement_started: bool,
+    mode: Config,
 }
 
 impl<I2C, E> Max3010x<I2C>
@@ -69,6 +85,7 @@ where
         Max3010x {
             i2c,
             temperature_measurement_started: false,
+            mode: Config { bits: 0 },
         }
     }
 
@@ -82,6 +99,16 @@ impl<I2C, E> Max3010x<I2C>
 where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
+    /// Put the device in power-save mode.
+    pub fn shutdown(&mut self) -> Result<(), Error<E>> {
+        let mode = self.mode.with_high(BitFlags::SHUTDOWN);
+        self.i2c
+            .write(DEVICE_ADDRESS, &[Register::MODE, mode.bits])
+            .map_err(Error::I2C)?;
+        self.mode = mode;
+        Ok(())
+    }
+
     /// Perform a temperature measurement.
     ///
     /// This starts a temperature measurement if none is currently ongoing.

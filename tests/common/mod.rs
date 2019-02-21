@@ -8,6 +8,7 @@ pub struct Register;
 #[allow(unused)]
 impl Register {
     pub const FIFO_WR_PTR: u8 = 0x04;
+    pub const MODE: u8 = 0x09;
     pub const TEMP_INT: u8 = 0x1F;
     pub const TEMP_CONFIG: u8 = 0x21;
     pub const REV_ID: u8 = 0xFE;
@@ -18,6 +19,7 @@ pub struct BitFlags;
 #[allow(unused)]
 impl BitFlags {
     pub const TEMP_EN: u8 = 0x01;
+    pub const SHUTDOWN: u8 = 0b1000_0000;
 }
 
 pub fn new(transactions: &[I2cTrans]) -> Max3010x<I2cMock> {
