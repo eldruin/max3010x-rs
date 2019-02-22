@@ -41,6 +41,17 @@ macro_rules! assert_would_block {
     };
 }
 
+#[test]
+fn assert_would_block_can_succeed() {
+    assert_would_block!(Err::<(), nb::Error<()>>(nb::Error::WouldBlock));
+}
+
+#[test]
+#[should_panic]
+fn assert_would_block_can_fail() {
+    assert_would_block!(Ok::<(), nb::Error<()>>(()));
+}
+
 #[macro_export]
 macro_rules! assert_near {
     ($left:expr, $right:expr, $eps:expr) => {
