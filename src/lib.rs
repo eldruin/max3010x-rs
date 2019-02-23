@@ -27,6 +27,7 @@
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
 extern crate nb;
+use core::marker::PhantomData;
 
 /// All possible errors in this crate
 #[derive(Debug)]
@@ -67,35 +68,51 @@ impl Config {
     }
 }
 
+#[doc(hidden)]
+pub mod marker {
+    pub mod mode {
+        pub struct None(());
+    }
+    pub mod ic {
+        pub struct Max30102(());
+    }
+}
+
 /// MAX3010x device driver.
 #[derive(Debug, Default)]
-pub struct Max3010x<I2C> {
+pub struct Max3010x<I2C, IC, MODE> {
     /// The concrete I²C device implementation.
     i2c: I2C,
     temperature_measurement_started: bool,
     mode: Config,
+    _ic: PhantomData<IC>,
+    _mode: PhantomData<MODE>,
 }
 
-impl<I2C, E> Max3010x<I2C>
-where
-    I2C: i2c::Write<Error = E>,
+
+impl<I2C> Max3010x<I2C, marker::ic::Max30102, marker::mode::None>
 {
     /// Create new instance of the MAX3010x device.
-    pub fn new(i2c: I2C) -> Self {
+    pub fn new_max30102(i2c: I2C) -> Self {
         Max3010x {
             i2c,
             temperature_measurement_started: false,
             mode: Config { bits: 0 },
+            _ic: PhantomData,
+            _mode: PhantomData,
         }
     }
+}
 
+impl<I2C, IC, MODE> Max3010x<I2C, IC, MODE>
+{
     /// Destroy driver instance, return I²C bus instance.
     pub fn destroy(self) -> I2C {
         self.i2c
     }
 }
 
-impl<I2C, E> Max3010x<I2C>
+impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
