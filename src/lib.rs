@@ -116,11 +116,7 @@ where
     /// Put the device in power-save mode.
     pub fn shutdown(&mut self) -> Result<(), Error<E>> {
         let mode = self.mode.with_high(BitFlags::SHUTDOWN);
-        self.i2c
-            .write(DEVICE_ADDRESS, &[Register::MODE, mode.bits])
-            .map_err(Error::I2C)?;
-        self.mode = mode;
-        Ok(())
+        self.change_mode(mode)
     }
 
     /// Resets the FIFO read and write pointers and overflow counter to 0.
@@ -182,6 +178,14 @@ where
     /// Get part ID
     pub fn get_part_id(&mut self) -> Result<u8, Error<E>> {
         self.read_register(Register::PART_ID)
+    }
+
+    fn change_mode(&mut self, mode: Config) -> Result<(), Error<E>> {
+        self.i2c
+            .write(DEVICE_ADDRESS, &[Register::MODE, mode.bits])
+            .map_err(Error::I2C)?;
+        self.mode = mode;
+        Ok(())
     }
 
     fn read_register(&mut self, register: u8) -> Result<u8, Error<E>> {
