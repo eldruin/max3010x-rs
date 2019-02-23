@@ -66,12 +66,18 @@ impl Config {
             bits: self.bits | mask,
         }
     }
+    fn with_low(&self, mask: u8) -> Self {
+        Config {
+            bits: self.bits & !mask,
+        }
+    }
 }
 
 #[doc(hidden)]
 pub mod marker {
     pub mod mode {
         pub struct None(());
+        pub struct HeartRate(());
     }
     pub mod ic {
         pub struct Max30102(());
@@ -89,7 +95,10 @@ pub struct Max3010x<I2C, IC, MODE> {
     _mode: PhantomData<MODE>,
 }
 
-impl<I2C> Max3010x<I2C, marker::ic::Max30102, marker::mode::None> {
+impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::None>
+where
+    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+{
     /// Create new instance of the MAX3010x device.
     pub fn new_max30102(i2c: I2C) -> Self {
         Max3010x {
@@ -99,6 +108,25 @@ impl<I2C> Max3010x<I2C, marker::ic::Max30102, marker::mode::None> {
             _ic: PhantomData,
             _mode: PhantomData,
         }
+    }
+
+    /// Change into heart-rate mode.
+    ///
+    /// This changes the mode and clears the FIFO data.
+    pub fn into_heart_rate(
+        mut self,
+    ) -> Result<Max3010x<I2C, marker::ic::Max30102, marker::mode::None>, Error<E>> {
+        let mode = self.mode.with_low(0b0000_0101).with_high(0b0000_0010);
+        self.change_mode(mode)?;
+        self.clear_fifo()?;
+        let dev = Max3010x {
+            i2c: self.i2c,
+            temperature_measurement_started: self.temperature_measurement_started,
+            mode: self.mode,
+            _ic: PhantomData,
+            _mode: PhantomData,
+        };
+        Ok(dev)
     }
 }
 

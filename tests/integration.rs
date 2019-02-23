@@ -110,3 +110,14 @@ fn can_clear_fifo() {
     dev.clear_fifo().unwrap();
     destroy(dev);
 }
+
+#[test]
+fn can_change_into_hr() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+    ];
+    let dev = new(&transactions);
+    let dev = dev.into_heart_rate().unwrap();
+    destroy(dev);
+}
