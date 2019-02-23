@@ -123,6 +123,13 @@ where
         Ok(())
     }
 
+    /// Resets the FIFO read and write pointers and overflow counter to 0.
+    pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
+        self.i2c
+            .write(DEVICE_ADDRESS, &[Register::FIFO_WR_PTR, 0, 0, 0])
+            .map_err(Error::I2C)
+    }
+
     /// Perform a temperature measurement.
     ///
     /// This starts a temperature measurement if none is currently ongoing.
