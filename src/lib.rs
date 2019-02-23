@@ -89,9 +89,7 @@ pub struct Max3010x<I2C, IC, MODE> {
     _mode: PhantomData<MODE>,
 }
 
-
-impl<I2C> Max3010x<I2C, marker::ic::Max30102, marker::mode::None>
-{
+impl<I2C> Max3010x<I2C, marker::ic::Max30102, marker::mode::None> {
     /// Create new instance of the MAX3010x device.
     pub fn new_max30102(i2c: I2C) -> Self {
         Max3010x {
@@ -104,8 +102,7 @@ impl<I2C> Max3010x<I2C, marker::ic::Max30102, marker::mode::None>
     }
 }
 
-impl<I2C, IC, MODE> Max3010x<I2C, IC, MODE>
-{
+impl<I2C, IC, MODE> Max3010x<I2C, IC, MODE> {
     /// Destroy driver instance, return I²C bus instance.
     pub fn destroy(self) -> I2C {
         self.i2c

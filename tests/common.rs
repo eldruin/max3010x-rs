@@ -1,5 +1,5 @@
 extern crate max3010x;
-use self::max3010x::{Max3010x, marker};
+use self::max3010x::{marker, Max3010x};
 extern crate embedded_hal_mock as hal;
 use hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
@@ -23,7 +23,9 @@ impl BitFlags {
     pub const SHUTDOWN: u8 = 0b1000_0000;
 }
 
-pub fn new(transactions: &[I2cTrans]) -> Max3010x<I2cMock, marker::ic::Max30102, marker::mode::None> {
+pub fn new(
+    transactions: &[I2cTrans],
+) -> Max3010x<I2cMock, marker::ic::Max30102, marker::mode::None> {
     Max3010x::new_max30102(I2cMock::new(&transactions))
 }
 
