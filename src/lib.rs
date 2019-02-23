@@ -42,6 +42,7 @@ struct Register;
 
 impl Register {
     const FIFO_WR_PTR: u8 = 0x04;
+    const FIFO_DATA: u8 = 0x07;
     const MODE: u8 = 0x09;
     const TEMP_INT: u8 = 0x1F;
     const TEMP_CONFIG: u8 = 0x21;
@@ -84,6 +85,15 @@ pub mod marker {
     }
 }
 
+#[doc(hidden)]
+pub trait ChannelCount<IC, MODE>: private::Sealed {
+    const CHANNEL_COUNT: u8;
+}
+
+impl ChannelCount<marker::ic::Max30102, marker::mode::HeartRate> for marker::mode::HeartRate {
+    const CHANNEL_COUNT: u8 = 1;
+}
+
 /// MAX3010x device driver.
 #[derive(Debug, Default)]
 pub struct Max3010x<I2C, IC, MODE> {
@@ -115,7 +125,7 @@ where
     /// This changes the mode and clears the FIFO data.
     pub fn into_heart_rate(
         mut self,
-    ) -> Result<Max3010x<I2C, marker::ic::Max30102, marker::mode::None>, Error<E>> {
+    ) -> Result<Max3010x<I2C, marker::ic::Max30102, marker::mode::HeartRate>, Error<E>> {
         let mode = self.mode.with_low(0b0000_0101).with_high(0b0000_0010);
         self.change_mode(mode)?;
         self.clear_fifo()?;
@@ -227,4 +237,42 @@ where
             .write_read(DEVICE_ADDRESS, &[register], data)
             .map_err(Error::I2C)
     }
+}
+
+impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
+where
+    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    MODE: ChannelCount<IC, MODE>,
+{
+    /// Reads samples from FIFO.
+    ///
+    /// Reads data from the FIFO until all the available samples
+    /// are read or the input buffer is full.
+    ///
+    /// Returns the number of _samples_ read.
+    ///
+    /// The input buffer must contain 3 bytes per channel per sample.
+    pub fn read_fifo(&mut self, data: &mut [u8]) -> Result<u8, Error<E>> {
+        let mode_channels = usize::from(MODE::CHANNEL_COUNT);
+        if data.len() < 3 * mode_channels {
+            return Ok(0);
+        }
+        let samples = self.get_available_sample_count()?;
+        let samples_fitting_in_input = data.len() / 3 / mode_channels;
+        let sample_count = core::cmp::min(usize::from(samples), samples_fitting_in_input);
+        if sample_count != 0 {
+            let byte_count = sample_count * mode_channels * 3;
+            self.read_data(Register::FIFO_DATA, &mut data[..byte_count])?;
+        }
+        Ok(sample_count as u8) // the maximum is 32 so this is ok
+    }
+}
+
+mod private {
+    use super::*;
+    pub trait Sealed {}
+
+    impl Sealed for marker::mode::HeartRate {}
+
+    impl Sealed for marker::ic::Max30102 {}
 }

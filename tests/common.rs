@@ -9,6 +9,7 @@ pub struct Register;
 #[allow(unused)]
 impl Register {
     pub const FIFO_WR_PTR: u8 = 0x04;
+    pub const FIFO_DATA: u8 = 0x07;
     pub const MODE: u8 = 0x09;
     pub const TEMP_INT: u8 = 0x1F;
     pub const TEMP_CONFIG: u8 = 0x21;

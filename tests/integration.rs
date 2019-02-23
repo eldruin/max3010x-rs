@@ -121,3 +121,52 @@ fn can_change_into_hr() {
     let dev = dev.into_heart_rate().unwrap();
     destroy(dev);
 }
+
+#[test]
+fn read_fifo_too_short_input_returns0() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+    ];
+    let dev = new(&transactions);
+
+    let mut data = [0; 2];
+    let mut dev = dev.into_heart_rate().unwrap();
+    let result = dev.read_fifo(&mut data).unwrap();
+    assert_eq!(0, result);
+    destroy(dev);
+}
+
+#[test]
+fn read_fifo_no_data_returns0() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_WR_PTR], vec![0, 0, 0]),
+    ];
+    let dev = new(&transactions);
+
+    let mut data = [0; 15];
+    let mut dev = dev.into_heart_rate().unwrap();
+    let result = dev.read_fifo(&mut data).unwrap();
+    assert_eq!(0, result);
+    destroy(dev);
+}
+
+#[test]
+fn read_fifo_read_samples() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_WR_PTR], vec![2, 0, 0]),
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_DATA], vec![1, 2, 3, 4, 5, 6]),
+    ];
+    let dev = new(&transactions);
+
+    let mut data = [0; 6];
+    let mut dev = dev.into_heart_rate().unwrap();
+    let result = dev.read_fifo(&mut data).unwrap();
+    assert_eq!(2, result);
+    assert_eq!([1, 2, 3, 4, 5, 6], data);
+    destroy(dev);
+}
