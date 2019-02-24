@@ -97,37 +97,22 @@ fn can_read_temperature() {
     destroy(dev);
 }
 
-#[test]
-fn can_shutdown() {
-    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::MODE, BF::SHUTDOWN])];
-    let mut dev = new(&transactions);
-    dev.shutdown().unwrap();
-    destroy(dev);
+macro_rules! write_test {
+    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, [$($values:expr),*]) => {
+        #[test]
+        fn $name() {
+            let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::$reg, $($values),*])];
+            let mut dev = new (&transactions);
+            dev.$method($($arg),*).unwrap();
+            destroy(dev);
+        }
+    };
 }
 
-#[test]
-fn can_wake_up() {
-    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0])];
-    let mut dev = new(&transactions);
-    dev.wake_up().unwrap();
-    destroy(dev);
-}
-
-#[test]
-fn can_trigger_reset() {
-    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::MODE, BF::RESET])];
-    let mut dev = new(&transactions);
-    dev.reset().unwrap();
-    destroy(dev);
-}
-
-#[test]
-fn can_clear_fifo() {
-    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0])];
-    let mut dev = new(&transactions);
-    dev.clear_fifo().unwrap();
-    destroy(dev);
-}
+write_test!(can_shutdown, shutdown, [], MODE, [BF::SHUTDOWN]);
+write_test!(can_wake_up, wake_up, [], MODE, [0]);
+write_test!(can_reset, reset, [], MODE, [BF::RESET]);
+write_test!(can_clear_fifo, clear_fifo, [], FIFO_WR_PTR, [0, 0, 0]);
 
 #[test]
 fn can_change_into_hr() {
@@ -189,26 +174,9 @@ fn read_fifo_read_samples() {
     destroy(dev);
 }
 
-#[test]
-fn can_set_pulse_amplitude_led1() {
-    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::LED1_PA, 50])];
-    let mut dev = new(&transactions);
-    dev.set_pulse_amplitude(Led::Led1, 50).unwrap();
-    destroy(dev);
-}
-
-#[test]
-fn can_set_pulse_amplitude_led2() {
-    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::LED2_PA, 50])];
-    let mut dev = new(&transactions);
-    dev.set_pulse_amplitude(Led::Led2, 50).unwrap();
-    destroy(dev);
-}
-
-#[test]
-fn can_set_pulse_amplitude_all() {
-    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::LED1_PA, 50, 50])];
-    let mut dev = new(&transactions);
-    dev.set_pulse_amplitude(Led::All, 50).unwrap();
-    destroy(dev);
+mod set_pulse_amplitude {
+    use super::*;
+    write_test!(led1, set_pulse_amplitude, [Led::Led1, 50], LED1_PA, [50]);
+    write_test!(led2, set_pulse_amplitude, [Led::Led2, 50], LED2_PA, [50]);
+    write_test!(all, set_pulse_amplitude, [Led::All, 50], LED1_PA, [50, 50]);
 }
