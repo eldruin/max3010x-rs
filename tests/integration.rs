@@ -6,31 +6,27 @@ use max3010x::Led;
 mod common;
 use common::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
-#[test]
-fn can_get_revision_id() {
-    let transactions = [I2cTrans::write_read(
-        DEV_ADDR,
-        vec![Reg::REV_ID],
-        vec![0xAB],
-    )];
-    let mut dev = new(&transactions);
-    let id = dev.get_revision_id().unwrap();
-    assert_eq!(0xAB, id);
-    destroy(dev);
+macro_rules! read_test {
+    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, [$($values:expr),*], $expected:expr) => {
+        #[test]
+        fn $name() {
+            let transactions = [
+                I2cTrans::write_read(
+                    DEV_ADDR,
+                    vec![Reg::$reg],
+                    vec![$($values),*]
+                )
+            ];
+            let mut dev = new (&transactions);
+            let result = dev.$method($($arg),*).unwrap();
+            assert_eq!(result, $expected);
+            destroy(dev);
+        }
+    };
 }
 
-#[test]
-fn can_get_part_id() {
-    let transactions = [I2cTrans::write_read(
-        DEV_ADDR,
-        vec![Reg::PART_ID],
-        vec![0xAB],
-    )];
-    let mut dev = new(&transactions);
-    let id = dev.get_part_id().unwrap();
-    assert_eq!(0xAB, id);
-    destroy(dev);
-}
+read_test!(can_get_revision_id, get_revision_id, [], REV_ID, [0xAB], 0xAB);
+read_test!(can_get_part_id, get_part_id, [], PART_ID, [0xAB], 0xAB);
 
 macro_rules! available_sample_count_test {
     ($name:ident, $wr_ptr:expr, $rd_ptr:expr, $expected:expr) => {
