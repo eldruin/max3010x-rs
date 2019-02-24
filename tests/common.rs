@@ -11,6 +11,8 @@ impl Register {
     pub const FIFO_WR_PTR: u8 = 0x04;
     pub const FIFO_DATA: u8 = 0x07;
     pub const MODE: u8 = 0x09;
+    pub const LED1_PA: u8 = 0x0C;
+    pub const LED2_PA: u8 = 0x0D;
     pub const TEMP_INT: u8 = 0x1F;
     pub const TEMP_CONFIG: u8 = 0x21;
     pub const REV_ID: u8 = 0xFE;

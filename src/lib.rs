@@ -36,6 +36,17 @@ pub enum Error<E> {
     I2C(E),
 }
 
+/// LEDs
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Led {
+    /// LED1 corresponds to Red in MAX30102
+    Led1,
+    /// LED1 corresponds to IR in MAX30102
+    Led2,
+    /// Select all available LEDs in the device
+    All,
+}
+
 const DEVICE_ADDRESS: u8 = 0b101_0111;
 
 struct Register;
@@ -44,6 +55,8 @@ impl Register {
     const FIFO_WR_PTR: u8 = 0x04;
     const FIFO_DATA: u8 = 0x07;
     const MODE: u8 = 0x09;
+    const LED1_PA: u8 = 0x0C;
+    const LED2_PA: u8 = 0x0D;
     const TEMP_INT: u8 = 0x1F;
     const TEMP_CONFIG: u8 = 0x21;
     const REV_ID: u8 = 0xFE;
@@ -155,6 +168,18 @@ where
     pub fn shutdown(&mut self) -> Result<(), Error<E>> {
         let mode = self.mode.with_high(BitFlags::SHUTDOWN);
         self.change_mode(mode)
+    }
+
+    /// Set the LED pulse amplitude
+    ///
+    /// The amplitude value corresponds to a typical current of 0.0 mA for 0
+    /// up to 51.0 mA for 255.
+    pub fn set_pulse_amplitude(&mut self, led: Led, amplitude: u8) -> Result<(), Error<E>> {
+        match led {
+            Led::Led1 => self.write_data(&[Register::LED1_PA, amplitude]),
+            Led::Led2 => self.write_data(&[Register::LED2_PA, amplitude]),
+            Led::All => self.write_data(&[Register::LED1_PA, amplitude, amplitude]),
+        }
     }
 
     /// Resets the FIFO read and write pointers and overflow counter to 0.

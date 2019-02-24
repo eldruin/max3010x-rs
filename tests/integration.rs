@@ -1,6 +1,8 @@
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
+extern crate max3010x;
 extern crate nb;
+use max3010x::Led;
 mod common;
 use common::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
@@ -168,5 +170,29 @@ fn read_fifo_read_samples() {
     let result = dev.read_fifo(&mut data).unwrap();
     assert_eq!(2, result);
     assert_eq!([1, 2, 3, 4, 5, 6], data);
+    destroy(dev);
+}
+
+#[test]
+fn can_set_pulse_amplitude_led1() {
+    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::LED1_PA, 50])];
+    let mut dev = new(&transactions);
+    dev.set_pulse_amplitude(Led::Led1, 50).unwrap();
+    destroy(dev);
+}
+
+#[test]
+fn can_set_pulse_amplitude_led2() {
+    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::LED2_PA, 50])];
+    let mut dev = new(&transactions);
+    dev.set_pulse_amplitude(Led::Led2, 50).unwrap();
+    destroy(dev);
+}
+
+#[test]
+fn can_set_pulse_amplitude_all() {
+    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::LED1_PA, 50, 50])];
+    let mut dev = new(&transactions);
+    dev.set_pulse_amplitude(Led::All, 50).unwrap();
     destroy(dev);
 }
