@@ -159,9 +159,7 @@ where
 
     /// Resets the FIFO read and write pointers and overflow counter to 0.
     pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
-        self.i2c
-            .write(DEVICE_ADDRESS, &[Register::FIFO_WR_PTR, 0, 0, 0])
-            .map_err(Error::I2C)
+        self.write_data(&[Register::FIFO_WR_PTR, 0, 0, 0])
     }
 
     /// Perform a temperature measurement.
@@ -185,9 +183,7 @@ where
             self.temperature_measurement_started = false;
             Ok(temp)
         } else {
-            self.i2c
-                .write(DEVICE_ADDRESS, &[Register::TEMP_CONFIG, BitFlags::TEMP_EN])
-                .map_err(Error::I2C)
+            self.write_data(&[Register::TEMP_CONFIG, BitFlags::TEMP_EN])
                 .map_err(nb::Error::Other)?;
             self.temperature_measurement_started = true;
             Err(nb::Error::WouldBlock)
@@ -219,9 +215,7 @@ where
     }
 
     fn change_mode(&mut self, mode: Config) -> Result<(), Error<E>> {
-        self.i2c
-            .write(DEVICE_ADDRESS, &[Register::MODE, mode.bits])
-            .map_err(Error::I2C)?;
+        self.write_data(&[Register::MODE, mode.bits])?;
         self.mode = mode;
         Ok(())
     }
@@ -236,6 +230,10 @@ where
         self.i2c
             .write_read(DEVICE_ADDRESS, &[register], data)
             .map_err(Error::I2C)
+    }
+
+    fn write_data(&mut self, data: &[u8]) -> Result<(), Error<E>> {
+        self.i2c.write(DEVICE_ADDRESS, data).map_err(Error::I2C)
     }
 }
 
