@@ -67,6 +67,7 @@ struct BitFlags;
 impl BitFlags {
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
+    const RESET: u8 = 0b0100_0000;
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -164,6 +165,12 @@ impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
+    /// Trigger a software reset
+    pub fn reset(&mut self) -> Result<(), Error<E>> {
+        let mode = self.mode.with_high(BitFlags::RESET);
+        self.write_data(&[Register::MODE, mode.bits])
+    }
+
     /// Put the device in power-save mode.
     pub fn shutdown(&mut self) -> Result<(), Error<E>> {
         let mode = self.mode.with_high(BitFlags::SHUTDOWN);

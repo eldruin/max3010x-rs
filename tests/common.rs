@@ -24,6 +24,7 @@ pub struct BitFlags;
 impl BitFlags {
     pub const TEMP_EN: u8 = 0x01;
     pub const SHUTDOWN: u8 = 0b1000_0000;
+    pub const RESET: u8 = 0b0100_0000;
 }
 
 pub fn new(

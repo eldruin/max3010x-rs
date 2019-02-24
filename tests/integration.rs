@@ -114,6 +114,14 @@ fn can_wake_up() {
 }
 
 #[test]
+fn can_trigger_reset() {
+    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::MODE, BF::RESET])];
+    let mut dev = new(&transactions);
+    dev.reset().unwrap();
+    destroy(dev);
+}
+
+#[test]
 fn can_clear_fifo() {
     let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0])];
     let mut dev = new(&transactions);
