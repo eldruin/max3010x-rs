@@ -106,6 +106,14 @@ fn can_shutdown() {
 }
 
 #[test]
+fn can_wake_up() {
+    let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0])];
+    let mut dev = new(&transactions);
+    dev.wake_up().unwrap();
+    destroy(dev);
+}
+
+#[test]
 fn can_clear_fifo() {
     let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0])];
     let mut dev = new(&transactions);

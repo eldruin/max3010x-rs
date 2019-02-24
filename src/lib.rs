@@ -170,6 +170,12 @@ where
         self.change_mode(mode)
     }
 
+    /// Wake up from power-save mode.
+    pub fn wake_up(&mut self) -> Result<(), Error<E>> {
+        let mode = self.mode.with_low(BitFlags::SHUTDOWN);
+        self.change_mode(mode)
+    }
+
     /// Set the LED pulse amplitude
     ///
     /// The amplitude value corresponds to a typical current of 0.0 mA for 0
