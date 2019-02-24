@@ -25,23 +25,19 @@ macro_rules! read_test {
     };
 }
 
-read_test!(can_get_revision_id, get_revision_id, [], REV_ID, [0xAB], 0xAB);
+read_test!(can_get_rev_id, get_revision_id, [], REV_ID, [0xAB], 0xAB);
 read_test!(can_get_part_id, get_part_id, [], PART_ID, [0xAB], 0xAB);
 
 macro_rules! available_sample_count_test {
     ($name:ident, $wr_ptr:expr, $rd_ptr:expr, $expected:expr) => {
-        #[test]
-        fn $name() {
-            let transactions = [I2cTrans::write_read(
-                DEV_ADDR,
-                vec![Reg::FIFO_WR_PTR],
-                vec![$wr_ptr, 0, $rd_ptr],
-            )];
-            let mut dev = new(&transactions);
-            let count = dev.get_available_sample_count().unwrap();
-            assert_eq!($expected, count);
-            destroy(dev);
-        }
+        read_test!(
+            $name,
+            get_available_sample_count,
+            [],
+            FIFO_WR_PTR,
+            [$wr_ptr, 0, $rd_ptr],
+            $expected
+        );
     };
 }
 
