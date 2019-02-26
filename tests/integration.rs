@@ -172,3 +172,18 @@ mod set_pulse_amplitude {
     write_test!(led2, set_pulse_amplitude, [Led::Led2, 50], LED2_PA, [50]);
     write_test!(all, set_pulse_amplitude, [Led::All, 50], LED1_PA, [50, 50]);
 }
+
+macro_rules! high_low_flag_method_test {
+    ($method_en:ident, $expected_en:expr, $method_dis:ident, $expected_dis:expr, $reg:ident) => {
+        write_test!($method_en, $method_en, [], $reg, [$expected_en]);
+        write_test!($method_dis, $method_dis, [], $reg, [$expected_dis]);
+    };
+}
+
+high_low_flag_method_test!(
+    enable_fifo_rollover,
+    BF::FIFO_ROLLOVER_EN,
+    disable_fifo_rollover,
+    0,
+    FIFO_CONFIG
+);

@@ -10,6 +10,7 @@ pub struct Register;
 impl Register {
     pub const FIFO_WR_PTR: u8 = 0x04;
     pub const FIFO_DATA: u8 = 0x07;
+    pub const FIFO_CONFIG: u8 = 0x08;
     pub const MODE: u8 = 0x09;
     pub const LED1_PA: u8 = 0x0C;
     pub const LED2_PA: u8 = 0x0D;
@@ -25,6 +26,7 @@ impl BitFlags {
     pub const TEMP_EN: u8 = 0x01;
     pub const SHUTDOWN: u8 = 0b1000_0000;
     pub const RESET: u8 = 0b0100_0000;
+    pub const FIFO_ROLLOVER_EN: u8 = 0b0001_0000;
 }
 
 pub fn new(

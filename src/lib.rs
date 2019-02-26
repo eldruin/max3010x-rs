@@ -54,6 +54,7 @@ struct Register;
 impl Register {
     const FIFO_WR_PTR: u8 = 0x04;
     const FIFO_DATA: u8 = 0x07;
+    const FIFO_CONFIG: u8 = 0x08;
     const MODE: u8 = 0x09;
     const LED1_PA: u8 = 0x0C;
     const LED2_PA: u8 = 0x0D;
@@ -68,6 +69,7 @@ impl BitFlags {
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
+    const FIFO_ROLLOVER_EN: u8 = 0b0001_0000;
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -115,6 +117,7 @@ pub struct Max3010x<I2C, IC, MODE> {
     i2c: I2C,
     temperature_measurement_started: bool,
     mode: Config,
+    fifo_config: Config,
     _ic: PhantomData<IC>,
     _mode: PhantomData<MODE>,
 }
@@ -129,6 +132,7 @@ where
             i2c,
             temperature_measurement_started: false,
             mode: Config { bits: 0 },
+            fifo_config: Config { bits: 0 },
             _ic: PhantomData,
             _mode: PhantomData,
         }
@@ -147,6 +151,7 @@ where
             i2c: self.i2c,
             temperature_measurement_started: self.temperature_measurement_started,
             mode: self.mode,
+            fifo_config: self.fifo_config,
             _ic: PhantomData,
             _mode: PhantomData,
         };
@@ -159,6 +164,39 @@ impl<I2C, IC, MODE> Max3010x<I2C, IC, MODE> {
     pub fn destroy(self) -> I2C {
         self.i2c
     }
+}
+
+macro_rules! flip_flag_method_impl {
+    ($name:ident, $doc:expr, $reg:ident, $reg_variable:ident, $config_method:ident, $bitflag:ident) => {
+        #[doc = $doc]
+        pub fn $name(&mut self) -> Result<(), Error<E>> {
+            let $reg_variable = self.$reg_variable.$config_method(BitFlags::$bitflag);
+            self.write_data(&[Register::$reg, $reg_variable.bits])?;
+            self.$reg_variable = $reg_variable;
+            Ok(())
+        }
+    }
+}
+
+macro_rules! high_low_flag_impl {
+    ($enable_name:ident, $enable_doc:expr, $disable_name:ident, $disable_doc:expr, $reg:ident, $reg_variable:ident, $bitflag:ident) => {
+        flip_flag_method_impl!(
+            $enable_name,
+            $enable_doc,
+            $reg,
+            $reg_variable,
+            with_high,
+            $bitflag
+        );
+        flip_flag_method_impl!(
+            $disable_name,
+            $disable_doc,
+            $reg,
+            $reg_variable,
+            with_low,
+            $bitflag
+        );
+    };
 }
 
 impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
@@ -195,10 +233,21 @@ where
         }
     }
 
+
     /// Resets the FIFO read and write pointers and overflow counter to 0.
     pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
         self.write_data(&[Register::FIFO_WR_PTR, 0, 0, 0])
     }
+
+    high_low_flag_impl!(
+        enable_fifo_rollover,
+        "Enable FIFO rollover",
+        disable_fifo_rollover,
+        "Disable FIFO rollover",
+        FIFO_CONFIG,
+        fifo_config,
+        FIFO_ROLLOVER_EN
+    );
 
     /// Perform a temperature measurement.
     ///
