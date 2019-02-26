@@ -64,6 +64,67 @@ pub enum SampleAveraging {
     Sa32,
 }
 
+/// Number of empty data samples when the FIFO almost full interrupt is issued.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum FifoAlmostFullLevelInterrupt {
+    /// Interrupt issue when 0 spaces are left in FIFO. (default)
+    L0,
+    /// Interrupt issue when 1 space is left in FIFO.
+    L1,
+    /// Interrupt issue when 2 spaces are left in FIFO.
+    L2,
+    /// Interrupt issue when 3 spaces are left in FIFO.
+    L3,
+    /// Interrupt issue when 4 spaces are left in FIFO.
+    L4,
+    /// Interrupt issue when 5 spaces are left in FIFO.
+    L5,
+    /// Interrupt issue when 6 spaces are left in FIFO.
+    L6,
+    /// Interrupt issue when 7 spaces are left in FIFO.
+    L7,
+    /// Interrupt issue when 8 spaces are left in FIFO.
+    L8,
+    /// Interrupt issue when 9 spaces are left in FIFO.
+    L9,
+    /// Interrupt issue when 10 spaces are left in FIFO.
+    L10,
+    /// Interrupt issue when 11 spaces are left in FIFO.
+    L11,
+    /// Interrupt issue when 12 spaces are left in FIFO.
+    L12,
+    /// Interrupt issue when 13 spaces are left in FIFO.
+    L13,
+    /// Interrupt issue when 14 spaces are left in FIFO.
+    L14,
+    /// Interrupt issue when 15 spaces are left in FIFO.
+    L15,
+}
+
+impl FifoAlmostFullLevelInterrupt {
+    fn get_register_value(self) -> u8 {
+        use FifoAlmostFullLevelInterrupt as L;
+        match self {
+            L::L0 => 0,
+            L::L1 => 1,
+            L::L2 => 2,
+            L::L3 => 3,
+            L::L4 => 4,
+            L::L5 => 5,
+            L::L6 => 6,
+            L::L7 => 7,
+            L::L8 => 8,
+            L::L9 => 9,
+            L::L10 => 10,
+            L::L11 => 11,
+            L::L12 => 12,
+            L::L13 => 13,
+            L::L14 => 14,
+            L::L15 => 15,
+        }
+    }
+}
+
 const DEVICE_ADDRESS: u8 = 0b101_0111;
 
 struct Register;
@@ -275,6 +336,21 @@ where
             SampleAveraging::Sa16 => fifo_config.with_high(0b1000_0000),
             SampleAveraging::Sa32 => fifo_config.with_high(0b1010_0000),
         };
+        self.write_data(&[Register::FIFO_CONFIG, fifo_config.bits])?;
+        self.fifo_config = fifo_config;
+        Ok(())
+    }
+
+    /// Set number of empty data samples available in the FIFO
+    /// when a FIFO-almost-full interrupt will be issued.
+    pub fn set_fifo_almost_full_level_interrupt(
+        &mut self,
+        level: FifoAlmostFullLevelInterrupt,
+    ) -> Result<(), Error<E>> {
+        let fifo_config = self
+            .fifo_config
+            .with_low(0b0000_0111)
+            .with_high(level.get_register_value());
         self.write_data(&[Register::FIFO_CONFIG, fifo_config.bits])?;
         self.fifo_config = fifo_config;
         Ok(())

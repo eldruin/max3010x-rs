@@ -2,7 +2,7 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 extern crate nb;
-use max3010x::{Led, SampleAveraging};
+use max3010x::{FifoAlmostFullLevelInterrupt, Led, SampleAveraging};
 mod common;
 use common::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
@@ -191,6 +191,35 @@ sample_avg_test!(sample_avg_4, Sa4, 0b0100_0000);
 sample_avg_test!(sample_avg_8, Sa8, 0b0110_0000);
 sample_avg_test!(sample_avg_16, Sa16, 0b1000_0000);
 sample_avg_test!(sample_avg_32, Sa32, 0b1010_0000);
+
+macro_rules! fifo_a_full_test {
+    ($name:ident, $variant:ident, $expected:expr) => {
+        write_test!(
+            $name,
+            set_fifo_almost_full_level_interrupt,
+            [FifoAlmostFullLevelInterrupt::$variant],
+            FIFO_CONFIG,
+            [$expected]
+        );
+    };
+}
+
+fifo_a_full_test!(fifo_a_full_0, L0, 0);
+fifo_a_full_test!(fifo_a_full_1, L1, 1);
+fifo_a_full_test!(fifo_a_full_2, L2, 2);
+fifo_a_full_test!(fifo_a_full_3, L3, 3);
+fifo_a_full_test!(fifo_a_full_4, L4, 4);
+fifo_a_full_test!(fifo_a_full_5, L5, 5);
+fifo_a_full_test!(fifo_a_full_6, L6, 6);
+fifo_a_full_test!(fifo_a_full_7, L7, 7);
+fifo_a_full_test!(fifo_a_full_8, L8, 8);
+fifo_a_full_test!(fifo_a_full_9, L9, 9);
+fifo_a_full_test!(fifo_a_full_10, L10, 10);
+fifo_a_full_test!(fifo_a_full_11, L11, 11);
+fifo_a_full_test!(fifo_a_full_12, L12, 12);
+fifo_a_full_test!(fifo_a_full_13, L13, 13);
+fifo_a_full_test!(fifo_a_full_14, L14, 14);
+fifo_a_full_test!(fifo_a_full_15, L15, 15);
 
 macro_rules! high_low_flag_method_test {
     ($method_en:ident, $expected_en:expr, $method_dis:ident, $expected_dis:expr, $reg:ident) => {
