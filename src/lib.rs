@@ -47,6 +47,23 @@ pub enum Led {
     All,
 }
 
+/// Sample averaging
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SampleAveraging {
+    /// 1 (no averaging) (default)
+    Sa1,
+    /// 2
+    Sa2,
+    /// 4
+    Sa4,
+    /// 8
+    Sa8,
+    /// 16
+    Sa16,
+    /// 32
+    Sa32,
+}
+
 const DEVICE_ADDRESS: u8 = 0b101_0111;
 
 struct Register;
@@ -242,6 +259,25 @@ where
             Led::Led2 => self.write_data(&[Register::LED2_PA, amplitude]),
             Led::All => self.write_data(&[Register::LED1_PA, amplitude, amplitude]),
         }
+    }
+
+    /// Set sample averaging
+    pub fn set_sample_averaging(
+        &mut self,
+        sample_averaging: SampleAveraging,
+    ) -> Result<(), Error<E>> {
+        let fifo_config = self.fifo_config.with_low(0b1110_0000);
+        let fifo_config = match sample_averaging {
+            SampleAveraging::Sa1 => fifo_config,
+            SampleAveraging::Sa2 => fifo_config.with_high(0b0010_0000),
+            SampleAveraging::Sa4 => fifo_config.with_high(0b0100_0000),
+            SampleAveraging::Sa8 => fifo_config.with_high(0b0110_0000),
+            SampleAveraging::Sa16 => fifo_config.with_high(0b1000_0000),
+            SampleAveraging::Sa32 => fifo_config.with_high(0b1010_0000),
+        };
+        self.write_data(&[Register::FIFO_CONFIG, fifo_config.bits])?;
+        self.fifo_config = fifo_config;
+        Ok(())
     }
 
     /// Resets the FIFO read and write pointers and overflow counter to 0.

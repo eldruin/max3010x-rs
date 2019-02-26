@@ -2,7 +2,7 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 extern crate nb;
-use max3010x::Led;
+use max3010x::{Led, SampleAveraging};
 mod common;
 use common::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
@@ -172,6 +172,25 @@ mod set_pulse_amplitude {
     write_test!(led2, set_pulse_amplitude, [Led::Led2, 50], LED2_PA, [50]);
     write_test!(all, set_pulse_amplitude, [Led::All, 50], LED1_PA, [50, 50]);
 }
+
+macro_rules! sample_avg_test {
+    ($name:ident, $variant:ident, $expected:expr) => {
+        write_test!(
+            $name,
+            set_sample_averaging,
+            [SampleAveraging::$variant],
+            FIFO_CONFIG,
+            [$expected]
+        );
+    };
+}
+
+sample_avg_test!(sample_avg_1, Sa1, 0);
+sample_avg_test!(sample_avg_2, Sa2, 0b0010_0000);
+sample_avg_test!(sample_avg_4, Sa4, 0b0100_0000);
+sample_avg_test!(sample_avg_8, Sa8, 0b0110_0000);
+sample_avg_test!(sample_avg_16, Sa16, 0b1000_0000);
+sample_avg_test!(sample_avg_32, Sa32, 0b1010_0000);
 
 macro_rules! high_low_flag_method_test {
     ($method_en:ident, $expected_en:expr, $method_dis:ident, $expected_dis:expr, $reg:ident) => {
