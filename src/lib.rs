@@ -52,6 +52,7 @@ const DEVICE_ADDRESS: u8 = 0b101_0111;
 struct Register;
 
 impl Register {
+    const INT_EN1: u8 = 0x02;
     const FIFO_WR_PTR: u8 = 0x04;
     const FIFO_DATA: u8 = 0x07;
     const FIFO_CONFIG: u8 = 0x08;
@@ -66,6 +67,7 @@ impl Register {
 
 struct BitFlags;
 impl BitFlags {
+    const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
@@ -118,6 +120,7 @@ pub struct Max3010x<I2C, IC, MODE> {
     temperature_measurement_started: bool,
     mode: Config,
     fifo_config: Config,
+    int_en1: Config,
     _ic: PhantomData<IC>,
     _mode: PhantomData<MODE>,
 }
@@ -133,6 +136,7 @@ where
             temperature_measurement_started: false,
             mode: Config { bits: 0 },
             fifo_config: Config { bits: 0 },
+            int_en1: Config { bits: 0 },
             _ic: PhantomData,
             _mode: PhantomData,
         }
@@ -152,6 +156,7 @@ where
             temperature_measurement_started: self.temperature_measurement_started,
             mode: self.mode,
             fifo_config: self.fifo_config,
+            int_en1: self.int_en1,
             _ic: PhantomData,
             _mode: PhantomData,
         };
@@ -233,7 +238,6 @@ where
         }
     }
 
-
     /// Resets the FIFO read and write pointers and overflow counter to 0.
     pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
         self.write_data(&[Register::FIFO_WR_PTR, 0, 0, 0])
@@ -290,6 +294,16 @@ where
             Ok(wr_ptr - rd_ptr)
         }
     }
+
+    high_low_flag_impl!(
+        enable_fifo_almost_full_interrupt,
+        "Enable FIFO almost full interrupt",
+        disable_fifo_almost_full_interrupt,
+        "Disable FIFO almost full interrupt",
+        INT_EN1,
+        int_en1,
+        FIFO_A_FULL_INT_EN
+    );
 
     /// Get revision ID
     pub fn get_revision_id(&mut self) -> Result<u8, Error<E>> {

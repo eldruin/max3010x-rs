@@ -8,6 +8,7 @@ pub const DEV_ADDR: u8 = 0b101_0111;
 pub struct Register;
 #[allow(unused)]
 impl Register {
+    pub const INT_EN1: u8 = 0x02;
     pub const FIFO_WR_PTR: u8 = 0x04;
     pub const FIFO_DATA: u8 = 0x07;
     pub const FIFO_CONFIG: u8 = 0x08;
@@ -23,6 +24,7 @@ impl Register {
 pub struct BitFlags;
 #[allow(unused)]
 impl BitFlags {
+    pub const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
     pub const TEMP_EN: u8 = 0x01;
     pub const SHUTDOWN: u8 = 0b1000_0000;
     pub const RESET: u8 = 0b0100_0000;

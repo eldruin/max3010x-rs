@@ -187,3 +187,11 @@ high_low_flag_method_test!(
     0,
     FIFO_CONFIG
 );
+
+high_low_flag_method_test!(
+    enable_fifo_almost_full_interrupt,
+    BF::FIFO_A_FULL_INT_EN,
+    disable_fifo_almost_full_interrupt,
+    0,
+    INT_EN1
+);
