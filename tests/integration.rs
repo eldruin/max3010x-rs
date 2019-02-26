@@ -2,7 +2,7 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 extern crate nb;
-use max3010x::{FifoAlmostFullLevelInterrupt, Led, SampleAveraging};
+use max3010x::{FifoAlmostFullLevelInterrupt, InterruptStatus, Led, SampleAveraging};
 mod common;
 use common::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
@@ -258,4 +258,56 @@ high_low_flag_method_test!(
     disable_temperature_ready_interrupt,
     0,
     INT_EN2
+);
+
+fn is_int_status_eq(a: InterruptStatus, b: InterruptStatus) {
+    if a.power_ready != b.power_ready {
+        panic!("Interrupt status is not equal");
+    }
+}
+
+#[test]
+fn int_status_is_equal() {
+    let a = InterruptStatus { power_ready: false };
+    let b = InterruptStatus { power_ready: false };
+    is_int_status_eq(a, b);
+}
+
+#[test]
+#[should_panic]
+fn int_status_is_not_equal() {
+    let a = InterruptStatus { power_ready: true };
+    let b = InterruptStatus { power_ready: false };
+    is_int_status_eq(a, b);
+}
+
+macro_rules! int_status_test {
+    ($name:ident, [$($values:expr),*], $expected:expr) => {
+        #[test]
+        fn $name() {
+            let transactions = [
+                I2cTrans::write_read(
+                    DEV_ADDR,
+                    vec![Reg::INT_STATUS],
+                    vec![$($values),*]
+                )
+            ];
+            let mut dev = new (&transactions);
+            let result = dev.read_interrupt_status().unwrap();
+            is_int_status_eq(result, $expected);
+            destroy(dev);
+        }
+    };
+}
+
+int_status_test!(
+    read_int_status_pwr_rdy_false,
+    [0],
+    InterruptStatus { power_ready: false }
+);
+
+int_status_test!(
+    read_int_status_pwr_rdy_true,
+    [BF::PWR_RDY],
+    InterruptStatus { power_ready: true }
 );

@@ -125,11 +125,19 @@ impl FifoAlmostFullLevelInterrupt {
     }
 }
 
+/// Interrupt status flags
+#[derive(Debug, Clone)]
+pub struct InterruptStatus {
+    /// Power ready interrupt
+    pub power_ready: bool,
+}
+
 const DEVICE_ADDRESS: u8 = 0b101_0111;
 
 struct Register;
 
 impl Register {
+    const INT_STATUS: u8 = 0x0;
     const INT_EN1: u8 = 0x02;
     const INT_EN2: u8 = 0x03;
     const FIFO_WR_PTR: u8 = 0x04;
@@ -149,6 +157,7 @@ impl BitFlags {
     const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
     const ALC_OVF_INT_EN: u8 = 0b0010_0000;
     const DIE_TEMP_RDY_INT_EN: u8 = 0b0000_0010;
+    const PWR_RDY: u8 = 0b0000_0001;
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
@@ -411,6 +420,16 @@ where
         } else {
             Ok(wr_ptr - rd_ptr)
         }
+    }
+
+    /// Read status of all interrupts
+    pub fn read_interrupt_status(&mut self) -> Result<InterruptStatus, Error<E>> {
+        let mut data = [0];
+        self.read_data(Register::INT_STATUS, &mut data)?;
+        let status = InterruptStatus {
+            power_ready: (data[0] & BitFlags::PWR_RDY) != 0,
+        };
+        Ok(status)
     }
 
     high_low_flag_impl!(
