@@ -195,3 +195,11 @@ high_low_flag_method_test!(
     0,
     INT_EN1
 );
+
+high_low_flag_method_test!(
+    enable_alc_overflow_interrupt,
+    BF::ALC_OVF_INT_EN,
+    disable_alc_overflow_interrupt,
+    0,
+    INT_EN1
+);

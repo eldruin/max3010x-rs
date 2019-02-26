@@ -68,6 +68,7 @@ impl Register {
 struct BitFlags;
 impl BitFlags {
     const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
+    const ALC_OVF_INT_EN: u8 = 0b0010_0000;
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
@@ -303,6 +304,16 @@ where
         INT_EN1,
         int_en1,
         FIFO_A_FULL_INT_EN
+    );
+
+    high_low_flag_impl!(
+        enable_alc_overflow_interrupt,
+        "Enable ambient light cancellation overflow interrupt",
+        disable_alc_overflow_interrupt,
+        "Disable ambient light cancellation overflow interrupt",
+        INT_EN1,
+        int_en1,
+        ALC_OVF_INT_EN
     );
 
     /// Get revision ID

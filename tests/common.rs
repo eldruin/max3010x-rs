@@ -25,6 +25,7 @@ pub struct BitFlags;
 #[allow(unused)]
 impl BitFlags {
     pub const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
+    pub const ALC_OVF_INT_EN: u8 = 0b0010_0000;
     pub const TEMP_EN: u8 = 0x01;
     pub const SHUTDOWN: u8 = 0b1000_0000;
     pub const RESET: u8 = 0b0100_0000;
