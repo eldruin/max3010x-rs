@@ -261,23 +261,35 @@ high_low_flag_method_test!(
 );
 
 fn is_int_status_eq(a: InterruptStatus, b: InterruptStatus) {
-    if a.power_ready != b.power_ready {
+    if a.power_ready != b.power_ready || a.fifo_almost_full != b.fifo_almost_full {
         panic!("Interrupt status is not equal");
     }
 }
 
 #[test]
 fn int_status_is_equal() {
-    let a = InterruptStatus { power_ready: false };
-    let b = InterruptStatus { power_ready: false };
+    let a = InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: false,
+    };
+    let b = InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: false,
+    };
     is_int_status_eq(a, b);
 }
 
 #[test]
 #[should_panic]
 fn int_status_is_not_equal() {
-    let a = InterruptStatus { power_ready: true };
-    let b = InterruptStatus { power_ready: false };
+    let a = InterruptStatus {
+        power_ready: true,
+        fifo_almost_full: false,
+    };
+    let b = InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: false,
+    };
     is_int_status_eq(a, b);
 }
 
@@ -303,11 +315,35 @@ macro_rules! int_status_test {
 int_status_test!(
     read_int_status_pwr_rdy_false,
     [0],
-    InterruptStatus { power_ready: false }
+    InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: false
+    }
 );
 
 int_status_test!(
     read_int_status_pwr_rdy_true,
     [BF::PWR_RDY],
-    InterruptStatus { power_ready: true }
+    InterruptStatus {
+        power_ready: true,
+        fifo_almost_full: false
+    }
+);
+
+int_status_test!(
+    read_int_status_fifo_a_full_false,
+    [0],
+    InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: false
+    }
+);
+
+int_status_test!(
+    read_int_status_fifo_a_full_true,
+    [BF::FIFO_A_FULL],
+    InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: true
+    }
 );
