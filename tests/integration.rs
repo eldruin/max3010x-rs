@@ -203,3 +203,11 @@ high_low_flag_method_test!(
     0,
     INT_EN1
 );
+
+high_low_flag_method_test!(
+    enable_temperature_ready_interrupt,
+    BF::DIE_TEMP_RDY_INT_EN,
+    disable_temperature_ready_interrupt,
+    0,
+    INT_EN2
+);

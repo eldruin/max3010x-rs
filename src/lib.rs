@@ -53,6 +53,7 @@ struct Register;
 
 impl Register {
     const INT_EN1: u8 = 0x02;
+    const INT_EN2: u8 = 0x03;
     const FIFO_WR_PTR: u8 = 0x04;
     const FIFO_DATA: u8 = 0x07;
     const FIFO_CONFIG: u8 = 0x08;
@@ -69,6 +70,7 @@ struct BitFlags;
 impl BitFlags {
     const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
     const ALC_OVF_INT_EN: u8 = 0b0010_0000;
+    const DIE_TEMP_RDY_INT_EN: u8 = 0b0000_0010;
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
@@ -122,6 +124,7 @@ pub struct Max3010x<I2C, IC, MODE> {
     mode: Config,
     fifo_config: Config,
     int_en1: Config,
+    int_en2: Config,
     _ic: PhantomData<IC>,
     _mode: PhantomData<MODE>,
 }
@@ -138,6 +141,7 @@ where
             mode: Config { bits: 0 },
             fifo_config: Config { bits: 0 },
             int_en1: Config { bits: 0 },
+            int_en2: Config { bits: 0 },
             _ic: PhantomData,
             _mode: PhantomData,
         }
@@ -158,6 +162,7 @@ where
             mode: self.mode,
             fifo_config: self.fifo_config,
             int_en1: self.int_en1,
+            int_en2: self.int_en2,
             _ic: PhantomData,
             _mode: PhantomData,
         };
@@ -314,6 +319,16 @@ where
         INT_EN1,
         int_en1,
         ALC_OVF_INT_EN
+    );
+
+    high_low_flag_impl!(
+        enable_temperature_ready_interrupt,
+        "Enable internal die temperature conversion ready interrupt",
+        disable_temperature_ready_interrupt,
+        "Disable internal die temperature conversion ready interrupt",
+        INT_EN2,
+        int_en2,
+        DIE_TEMP_RDY_INT_EN
     );
 
     /// Get revision ID
