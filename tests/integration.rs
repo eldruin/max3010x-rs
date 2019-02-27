@@ -391,3 +391,14 @@ fn can_change_into_multi_led() {
     let dev = dev.into_multi_led().unwrap();
     destroy(dev);
 }
+
+#[test]
+fn can_change_into_ocimeter() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b011]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+    ];
+    let dev = new(&transactions);
+    let dev = dev.into_oximeter().unwrap();
+    destroy(dev);
+}

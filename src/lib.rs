@@ -196,6 +196,7 @@ pub mod marker {
     pub mod mode {
         pub struct None(());
         pub struct HeartRate(());
+        pub struct Oximeter(());
         pub struct MultiLED(());
     }
     pub mod ic {
@@ -210,6 +211,10 @@ pub trait ChannelCount<IC, MODE>: private::Sealed {
 
 impl ChannelCount<marker::ic::Max30102, marker::mode::HeartRate> for marker::mode::HeartRate {
     const CHANNEL_COUNT: u8 = 1;
+}
+
+impl ChannelCount<marker::ic::Max30102, marker::mode::Oximeter> for marker::mode::Oximeter {
+    const CHANNEL_COUNT: u8 = 2;
 }
 
 impl ChannelCount<marker::ic::Max30102, marker::mode::MultiLED> for marker::mode::MultiLED {
@@ -260,6 +265,28 @@ where
         mut self,
     ) -> Result<Max3010x<I2C, marker::ic::Max30102, marker::mode::HeartRate>, Error<E>> {
         let mode = self.mode.with_low(0b0000_0101).with_high(0b0000_0010);
+        self.change_mode(mode)?;
+        self.clear_fifo()?;
+        let dev = Max3010x {
+            i2c: self.i2c,
+            temperature_measurement_started: self.temperature_measurement_started,
+            mode: self.mode,
+            fifo_config: self.fifo_config,
+            int_en1: self.int_en1,
+            int_en2: self.int_en2,
+            _ic: PhantomData,
+            _mode: PhantomData,
+        };
+        Ok(dev)
+    }
+
+    /// Change into SpO2 (oximeter) mode.
+    ///
+    /// This changes the mode and clears the FIFO data.
+    pub fn into_oximeter(
+        mut self,
+    ) -> Result<Max3010x<I2C, marker::ic::Max30102, marker::mode::Oximeter>, Error<E>> {
+        let mode = self.mode.with_low(0b0000_0100).with_high(0b0000_0011);
         self.change_mode(mode)?;
         self.clear_fifo()?;
         let dev = Max3010x {
@@ -574,6 +601,7 @@ mod private {
     pub trait Sealed {}
 
     impl Sealed for marker::mode::HeartRate {}
+    impl Sealed for marker::mode::Oximeter {}
     impl Sealed for marker::mode::MultiLED {}
 
     impl Sealed for marker::ic::Max30102 {}
