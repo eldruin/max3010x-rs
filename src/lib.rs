@@ -132,6 +132,8 @@ pub struct InterruptStatus {
     pub power_ready: bool,
     /// FIFO almost full interrupt
     pub fifo_almost_full: bool,
+    /// New FIFO data ready
+    pub new_fifo_data_ready: bool,
 }
 
 const DEVICE_ADDRESS: u8 = 0b101_0111;
@@ -159,6 +161,7 @@ impl BitFlags {
     const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
     const ALC_OVF_INT_EN: u8 = 0b0010_0000;
     const DIE_TEMP_RDY_INT_EN: u8 = 0b0000_0010;
+    const PPG_RDY: u8 = 0b0100_0000;
     const PWR_RDY: u8 = 0b0000_0001;
     const FIFO_A_FULL: u8 = 0b1000_0000;
     const TEMP_EN: u8 = 0b0000_0001;
@@ -432,6 +435,7 @@ where
         let status = InterruptStatus {
             power_ready: (data[0] & BitFlags::PWR_RDY) != 0,
             fifo_almost_full: (data[0] & BitFlags::FIFO_A_FULL) != 0,
+            new_fifo_data_ready: (data[0] & BitFlags::PPG_RDY) != 0,
         };
         Ok(status)
     }

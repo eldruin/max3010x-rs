@@ -271,10 +271,12 @@ fn int_status_is_equal() {
     let a = InterruptStatus {
         power_ready: false,
         fifo_almost_full: false,
+        new_fifo_data_ready: false,
     };
     let b = InterruptStatus {
         power_ready: false,
         fifo_almost_full: false,
+        new_fifo_data_ready: false,
     };
     is_int_status_eq(a, b);
 }
@@ -285,10 +287,12 @@ fn int_status_is_not_equal() {
     let a = InterruptStatus {
         power_ready: true,
         fifo_almost_full: false,
+        new_fifo_data_ready: false,
     };
     let b = InterruptStatus {
         power_ready: false,
         fifo_almost_full: false,
+        new_fifo_data_ready: false,
     };
     is_int_status_eq(a, b);
 }
@@ -317,7 +321,8 @@ int_status_test!(
     [0],
     InterruptStatus {
         power_ready: false,
-        fifo_almost_full: false
+        fifo_almost_full: false,
+        new_fifo_data_ready: false
     }
 );
 
@@ -326,7 +331,8 @@ int_status_test!(
     [BF::PWR_RDY],
     InterruptStatus {
         power_ready: true,
-        fifo_almost_full: false
+        fifo_almost_full: false,
+        new_fifo_data_ready: false
     }
 );
 
@@ -335,7 +341,8 @@ int_status_test!(
     [0],
     InterruptStatus {
         power_ready: false,
-        fifo_almost_full: false
+        fifo_almost_full: false,
+        new_fifo_data_ready: false
     }
 );
 
@@ -344,6 +351,27 @@ int_status_test!(
     [BF::FIFO_A_FULL],
     InterruptStatus {
         power_ready: false,
-        fifo_almost_full: true
+        fifo_almost_full: true,
+        new_fifo_data_ready: false
+    }
+);
+
+int_status_test!(
+    read_int_status_ppg_rdy_false,
+    [0],
+    InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: false,
+        new_fifo_data_ready: false
+    }
+);
+
+int_status_test!(
+    read_int_status_ppg_rdy_true,
+    [BF::PPG_RDY],
+    InterruptStatus {
+        power_ready: false,
+        fifo_almost_full: false,
+        new_fifo_data_ready: true
     }
 );
