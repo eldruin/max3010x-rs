@@ -261,39 +261,41 @@ high_low_flag_method_test!(
 );
 
 fn is_int_status_eq(a: InterruptStatus, b: InterruptStatus) {
-    if a.power_ready != b.power_ready || a.fifo_almost_full != b.fifo_almost_full {
+    if a.power_ready != b.power_ready
+        || a.fifo_almost_full != b.fifo_almost_full
+        || a.new_fifo_data_ready != b.new_fifo_data_ready
+        || a.alc_overflow != b.alc_overflow
+    {
         panic!("Interrupt status is not equal");
+    }
+}
+
+fn new_int_status(
+    power_ready: bool,
+    fifo_almost_full: bool,
+    new_fifo_data_ready: bool,
+    alc_overflow: bool,
+) -> InterruptStatus {
+    InterruptStatus {
+        power_ready,
+        fifo_almost_full,
+        new_fifo_data_ready,
+        alc_overflow,
     }
 }
 
 #[test]
 fn int_status_is_equal() {
-    let a = InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false,
-    };
-    let b = InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false,
-    };
+    let a = new_int_status(false, false, false, false);
+    let b = new_int_status(false, false, false, false);
     is_int_status_eq(a, b);
 }
 
 #[test]
 #[should_panic]
 fn int_status_is_not_equal() {
-    let a = InterruptStatus {
-        power_ready: true,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false,
-    };
-    let b = InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false,
-    };
+    let a = new_int_status(false, false, false, false);
+    let b = new_int_status(true, false, false, false);
     is_int_status_eq(a, b);
 }
 
@@ -319,59 +321,47 @@ macro_rules! int_status_test {
 int_status_test!(
     read_int_status_pwr_rdy_false,
     [0],
-    InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false
-    }
+    new_int_status(false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_pwr_rdy_true,
     [BF::PWR_RDY],
-    InterruptStatus {
-        power_ready: true,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false
-    }
+    new_int_status(true, false, false, false)
 );
 
 int_status_test!(
     read_int_status_fifo_a_full_false,
     [0],
-    InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false
-    }
+    new_int_status(false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_fifo_a_full_true,
     [BF::FIFO_A_FULL],
-    InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: true,
-        new_fifo_data_ready: false
-    }
+    new_int_status(false, true, false, false)
 );
 
 int_status_test!(
     read_int_status_ppg_rdy_false,
     [0],
-    InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: false,
-        new_fifo_data_ready: false
-    }
+    new_int_status(false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_ppg_rdy_true,
     [BF::PPG_RDY],
-    InterruptStatus {
-        power_ready: false,
-        fifo_almost_full: false,
-        new_fifo_data_ready: true
-    }
+    new_int_status(false, false, true, false)
+);
+
+int_status_test!(
+    read_int_status_alc_ovf_false,
+    [0],
+    new_int_status(false, false, false, false)
+);
+
+int_status_test!(
+    read_int_status_alc_ovf_true,
+    [BF::ALC_OVF],
+    new_int_status(false, false, false, true)
 );

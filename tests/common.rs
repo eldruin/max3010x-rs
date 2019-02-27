@@ -30,6 +30,7 @@ impl BitFlags {
     pub const ALC_OVF_INT_EN: u8 = 0b0010_0000;
     pub const DIE_TEMP_RDY_INT_EN: u8 = 0b0000_0010;
     pub const PPG_RDY: u8 = 0b0100_0000;
+    pub const ALC_OVF: u8 = 0b0010_0000;
     pub const PWR_RDY: u8 = 0b0000_0001;
     pub const FIFO_A_FULL: u8 = 0b1000_0000;
     pub const TEMP_EN: u8 = 0x01;

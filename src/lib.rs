@@ -134,6 +134,8 @@ pub struct InterruptStatus {
     pub fifo_almost_full: bool,
     /// New FIFO data ready interrupt
     pub new_fifo_data_ready: bool,
+    /// Ambient light cancellation overflow interrupt
+    pub alc_overflow: bool,
 }
 
 const DEVICE_ADDRESS: u8 = 0b101_0111;
@@ -162,6 +164,7 @@ impl BitFlags {
     const ALC_OVF_INT_EN: u8 = 0b0010_0000;
     const DIE_TEMP_RDY_INT_EN: u8 = 0b0000_0010;
     const PPG_RDY: u8 = 0b0100_0000;
+    const ALC_OVF: u8 = 0b0010_0000;
     const PWR_RDY: u8 = 0b0000_0001;
     const FIFO_A_FULL: u8 = 0b1000_0000;
     const TEMP_EN: u8 = 0b0000_0001;
@@ -436,6 +439,7 @@ where
             power_ready: (data[0] & BitFlags::PWR_RDY) != 0,
             fifo_almost_full: (data[0] & BitFlags::FIFO_A_FULL) != 0,
             new_fifo_data_ready: (data[0] & BitFlags::PPG_RDY) != 0,
+            alc_overflow: (data[0] & BitFlags::ALC_OVF) != 0,
         };
         Ok(status)
     }
