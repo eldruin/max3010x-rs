@@ -380,3 +380,14 @@ int_status_test!(
     [0, BF::DIE_TEMP_RDY_INT],
     new_int_status(false, false, false, false, true)
 );
+
+#[test]
+fn can_change_into_multi_led() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b111]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+    ];
+    let dev = new(&transactions);
+    let dev = dev.into_multi_led().unwrap();
+    destroy(dev);
+}
