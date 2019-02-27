@@ -132,7 +132,7 @@ pub struct InterruptStatus {
     pub power_ready: bool,
     /// FIFO almost full interrupt
     pub fifo_almost_full: bool,
-    /// New FIFO data ready
+    /// New FIFO data ready interrupt
     pub new_fifo_data_ready: bool,
 }
 
