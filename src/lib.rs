@@ -136,6 +136,8 @@ pub struct InterruptStatus {
     pub new_fifo_data_ready: bool,
     /// Ambient light cancellation overflow interrupt
     pub alc_overflow: bool,
+    /// Internal die temperature conversion ready interrupt
+    pub temperature_ready: bool,
 }
 
 const DEVICE_ADDRESS: u8 = 0b101_0111;
@@ -166,6 +168,7 @@ impl BitFlags {
     const PPG_RDY: u8 = 0b0100_0000;
     const ALC_OVF: u8 = 0b0010_0000;
     const PWR_RDY: u8 = 0b0000_0001;
+    const DIE_TEMP_RDY: u8 = 0b0000_0010;
     const FIFO_A_FULL: u8 = 0b1000_0000;
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
@@ -433,13 +436,14 @@ where
 
     /// Read status of all interrupts
     pub fn read_interrupt_status(&mut self) -> Result<InterruptStatus, Error<E>> {
-        let mut data = [0];
+        let mut data = [0; 2];
         self.read_data(Register::INT_STATUS, &mut data)?;
         let status = InterruptStatus {
             power_ready: (data[0] & BitFlags::PWR_RDY) != 0,
             fifo_almost_full: (data[0] & BitFlags::FIFO_A_FULL) != 0,
             new_fifo_data_ready: (data[0] & BitFlags::PPG_RDY) != 0,
             alc_overflow: (data[0] & BitFlags::ALC_OVF) != 0,
+            temperature_ready: (data[1] & BitFlags::DIE_TEMP_RDY) != 0,
         };
         Ok(status)
     }

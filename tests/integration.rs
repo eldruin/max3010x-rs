@@ -265,6 +265,7 @@ fn is_int_status_eq(a: InterruptStatus, b: InterruptStatus) {
         || a.fifo_almost_full != b.fifo_almost_full
         || a.new_fifo_data_ready != b.new_fifo_data_ready
         || a.alc_overflow != b.alc_overflow
+        || a.temperature_ready != b.temperature_ready
     {
         panic!("Interrupt status is not equal");
     }
@@ -275,27 +276,29 @@ fn new_int_status(
     fifo_almost_full: bool,
     new_fifo_data_ready: bool,
     alc_overflow: bool,
+    temperature_ready: bool,
 ) -> InterruptStatus {
     InterruptStatus {
         power_ready,
         fifo_almost_full,
         new_fifo_data_ready,
         alc_overflow,
+        temperature_ready,
     }
 }
 
 #[test]
 fn int_status_is_equal() {
-    let a = new_int_status(false, false, false, false);
-    let b = new_int_status(false, false, false, false);
+    let a = new_int_status(false, false, false, false, false);
+    let b = new_int_status(false, false, false, false, false);
     is_int_status_eq(a, b);
 }
 
 #[test]
 #[should_panic]
 fn int_status_is_not_equal() {
-    let a = new_int_status(false, false, false, false);
-    let b = new_int_status(true, false, false, false);
+    let a = new_int_status(false, false, false, false, false);
+    let b = new_int_status(true, false, false, false, false);
     is_int_status_eq(a, b);
 }
 
@@ -320,48 +323,60 @@ macro_rules! int_status_test {
 
 int_status_test!(
     read_int_status_pwr_rdy_false,
-    [0],
-    new_int_status(false, false, false, false)
+    [0, 0],
+    new_int_status(false, false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_pwr_rdy_true,
-    [BF::PWR_RDY],
-    new_int_status(true, false, false, false)
+    [BF::PWR_RDY, 0],
+    new_int_status(true, false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_fifo_a_full_false,
-    [0],
-    new_int_status(false, false, false, false)
+    [0, 0],
+    new_int_status(false, false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_fifo_a_full_true,
-    [BF::FIFO_A_FULL],
-    new_int_status(false, true, false, false)
+    [BF::FIFO_A_FULL, 0],
+    new_int_status(false, true, false, false, false)
 );
 
 int_status_test!(
     read_int_status_ppg_rdy_false,
-    [0],
-    new_int_status(false, false, false, false)
+    [0, 0],
+    new_int_status(false, false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_ppg_rdy_true,
-    [BF::PPG_RDY],
-    new_int_status(false, false, true, false)
+    [BF::PPG_RDY, 0],
+    new_int_status(false, false, true, false, false)
 );
 
 int_status_test!(
     read_int_status_alc_ovf_false,
-    [0],
-    new_int_status(false, false, false, false)
+    [0, 0],
+    new_int_status(false, false, false, false, false)
 );
 
 int_status_test!(
     read_int_status_alc_ovf_true,
-    [BF::ALC_OVF],
-    new_int_status(false, false, false, true)
+    [BF::ALC_OVF, 0],
+    new_int_status(false, false, false, true, false)
+);
+
+int_status_test!(
+    read_int_status_temp_rdy_false,
+    [0, 0],
+    new_int_status(false, false, false, false, false)
+);
+
+int_status_test!(
+    read_int_status_temp_rdy_true,
+    [0, BF::DIE_TEMP_RDY_INT_EN],
+    new_int_status(false, false, false, false, true)
 );
