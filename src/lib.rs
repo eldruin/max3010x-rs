@@ -162,14 +162,11 @@ impl Register {
 
 struct BitFlags;
 impl BitFlags {
-    const FIFO_A_FULL_INT_EN: u8 = 0b1000_0000;
-    const ALC_OVF_INT_EN: u8 = 0b0010_0000;
-    const DIE_TEMP_RDY_INT_EN: u8 = 0b0000_0010;
-    const PPG_RDY: u8 = 0b0100_0000;
-    const ALC_OVF: u8 = 0b0010_0000;
-    const PWR_RDY: u8 = 0b0000_0001;
-    const DIE_TEMP_RDY: u8 = 0b0000_0010;
-    const FIFO_A_FULL: u8 = 0b1000_0000;
+    const FIFO_A_FULL_INT: u8 = 0b1000_0000;
+    const ALC_OVF_INT: u8 = 0b0010_0000;
+    const DIE_TEMP_RDY_INT: u8 = 0b0000_0010;
+    const PPG_RDY_INT: u8 = 0b0100_0000;
+    const PWR_RDY_INT: u8 = 0b0000_0001;
     const TEMP_EN: u8 = 0b0000_0001;
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
@@ -439,11 +436,11 @@ where
         let mut data = [0; 2];
         self.read_data(Register::INT_STATUS, &mut data)?;
         let status = InterruptStatus {
-            power_ready: (data[0] & BitFlags::PWR_RDY) != 0,
-            fifo_almost_full: (data[0] & BitFlags::FIFO_A_FULL) != 0,
-            new_fifo_data_ready: (data[0] & BitFlags::PPG_RDY) != 0,
-            alc_overflow: (data[0] & BitFlags::ALC_OVF) != 0,
-            temperature_ready: (data[1] & BitFlags::DIE_TEMP_RDY) != 0,
+            power_ready: (data[0] & BitFlags::PWR_RDY_INT) != 0,
+            fifo_almost_full: (data[0] & BitFlags::FIFO_A_FULL_INT) != 0,
+            new_fifo_data_ready: (data[0] & BitFlags::PPG_RDY_INT) != 0,
+            alc_overflow: (data[0] & BitFlags::ALC_OVF_INT) != 0,
+            temperature_ready: (data[1] & BitFlags::DIE_TEMP_RDY_INT) != 0,
         };
         Ok(status)
     }
@@ -455,7 +452,7 @@ where
         "Disable FIFO almost full interrupt",
         INT_EN1,
         int_en1,
-        FIFO_A_FULL_INT_EN
+        FIFO_A_FULL_INT
     );
 
     high_low_flag_impl!(
@@ -465,7 +462,7 @@ where
         "Disable ambient light cancellation overflow interrupt",
         INT_EN1,
         int_en1,
-        ALC_OVF_INT_EN
+        ALC_OVF_INT
     );
 
     high_low_flag_impl!(
@@ -475,7 +472,7 @@ where
         "Disable internal die temperature conversion ready interrupt",
         INT_EN2,
         int_en2,
-        DIE_TEMP_RDY_INT_EN
+        DIE_TEMP_RDY_INT
     );
 
     /// Get revision ID

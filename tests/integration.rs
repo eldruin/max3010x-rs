@@ -238,7 +238,7 @@ high_low_flag_method_test!(
 
 high_low_flag_method_test!(
     enable_fifo_almost_full_interrupt,
-    BF::FIFO_A_FULL_INT_EN,
+    BF::FIFO_A_FULL_INT,
     disable_fifo_almost_full_interrupt,
     0,
     INT_EN1
@@ -246,7 +246,7 @@ high_low_flag_method_test!(
 
 high_low_flag_method_test!(
     enable_alc_overflow_interrupt,
-    BF::ALC_OVF_INT_EN,
+    BF::ALC_OVF_INT,
     disable_alc_overflow_interrupt,
     0,
     INT_EN1
@@ -254,7 +254,7 @@ high_low_flag_method_test!(
 
 high_low_flag_method_test!(
     enable_temperature_ready_interrupt,
-    BF::DIE_TEMP_RDY_INT_EN,
+    BF::DIE_TEMP_RDY_INT,
     disable_temperature_ready_interrupt,
     0,
     INT_EN2
@@ -329,7 +329,7 @@ int_status_test!(
 
 int_status_test!(
     read_int_status_pwr_rdy_true,
-    [BF::PWR_RDY, 0],
+    [BF::PWR_RDY_INT, 0],
     new_int_status(true, false, false, false, false)
 );
 
@@ -341,7 +341,7 @@ int_status_test!(
 
 int_status_test!(
     read_int_status_fifo_a_full_true,
-    [BF::FIFO_A_FULL, 0],
+    [BF::FIFO_A_FULL_INT, 0],
     new_int_status(false, true, false, false, false)
 );
 
@@ -353,7 +353,7 @@ int_status_test!(
 
 int_status_test!(
     read_int_status_ppg_rdy_true,
-    [BF::PPG_RDY, 0],
+    [BF::PPG_RDY_INT, 0],
     new_int_status(false, false, true, false, false)
 );
 
@@ -365,7 +365,7 @@ int_status_test!(
 
 int_status_test!(
     read_int_status_alc_ovf_true,
-    [BF::ALC_OVF, 0],
+    [BF::ALC_OVF_INT, 0],
     new_int_status(false, false, false, true, false)
 );
 
@@ -377,6 +377,6 @@ int_status_test!(
 
 int_status_test!(
     read_int_status_temp_rdy_true,
-    [0, BF::DIE_TEMP_RDY_INT_EN],
+    [0, BF::DIE_TEMP_RDY_INT],
     new_int_status(false, false, false, false, true)
 );
