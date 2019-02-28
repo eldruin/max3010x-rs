@@ -1,5 +1,5 @@
 extern crate max3010x;
-use self::max3010x::{marker, Max3010x};
+use max3010x::{marker, Error, Max3010x};
 extern crate embedded_hal_mock as hal;
 use hal::i2c::{Mock as I2cMock, Transaction as I2cTrans};
 
@@ -17,6 +17,7 @@ impl Register {
     pub const MODE: u8 = 0x09;
     pub const LED1_PA: u8 = 0x0C;
     pub const LED2_PA: u8 = 0x0D;
+    pub const SLOT_CONFIG0: u8 = 0x11;
     pub const TEMP_INT: u8 = 0x1F;
     pub const TEMP_CONFIG: u8 = 0x21;
     pub const REV_ID: u8 = 0xFE;
@@ -66,6 +67,27 @@ fn assert_would_block_can_succeed() {
 #[should_panic]
 fn assert_would_block_can_fail() {
     assert_would_block!(Ok::<(), nb::Error<()>>(()));
+}
+
+#[macro_export]
+macro_rules! assert_invalid_args {
+    ($result:expr) => {
+        match $result {
+            Err(Error::InvalidArguments) => (),
+            _ => panic!("Did not return Error::InvalidArguments"),
+        }
+    };
+}
+
+#[test]
+fn assert_invalid_args_can_succeed() {
+    assert_invalid_args!(Err::<(), Error<()>>(Error::InvalidArguments));
+}
+
+#[test]
+#[should_panic]
+fn assert_invalid_args_can_fail() {
+    assert_invalid_args!(Ok::<(), Error<()>>(()));
 }
 
 #[macro_export]

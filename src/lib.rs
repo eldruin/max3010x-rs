@@ -33,6 +33,8 @@ use core::marker::PhantomData;
 pub enum Error<E> {
     /// I²C bus error
     I2C(E),
+    /// Invalid arguments provided
+    InvalidArguments,
 }
 
 /// LEDs
@@ -44,6 +46,17 @@ pub enum Led {
     Led2,
     /// Select all available LEDs in the device
     All,
+}
+
+/// Multi-LED mode sample time slot configuration
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum TimeSlot {
+    /// Time slot is disabled
+    Disabled,
+    /// LED 1 active during time slot (corresponds to Red in MAX30102)
+    Led1,
+    /// LED 2 active during time slot (corresponds to IR in MAX30102)
+    Led2,
 }
 
 /// Sample averaging
@@ -129,6 +142,7 @@ impl Register {
     const MODE: u8 = 0x09;
     const LED1_PA: u8 = 0x0C;
     const LED2_PA: u8 = 0x0D;
+    const SLOT_CONFIG0: u8 = 0x11;
     const TEMP_INT: u8 = 0x1F;
     const TEMP_CONFIG: u8 = 0x21;
     const REV_ID: u8 = 0xFE;

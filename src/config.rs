@@ -1,7 +1,7 @@
 //! Device configuration methods.
 use super::{
     marker, BitFlags, Config, Error, FifoAlmostFullLevelInterrupt, Led, Max3010x, Register,
-    SampleAveraging,
+    SampleAveraging, TimeSlot,
 };
 use core::marker::PhantomData;
 use hal::blocking::i2c;
@@ -251,5 +251,42 @@ where
         self.write_data(&[Register::MODE, mode.bits])?;
         self.mode = mode;
         Ok(())
+    }
+}
+
+impl TimeSlot {
+    fn get_mask(self) -> u8 {
+        match self {
+            TimeSlot::Disabled => 0,
+            TimeSlot::Led1 => 1,
+            TimeSlot::Led2 => 2,
+        }
+    }
+}
+
+impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::MultiLED>
+where
+    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+{
+    /// Configure LED time slots in Multi-LED mode
+    ///
+    /// The slots should be activated in order. i.e. slot 2 cannot be
+    /// activated if slot 1 is disabled.
+    /// Failing to do so will return `Error::InvalidArguments`.
+    pub fn set_led_time_slots(&mut self, slots: [TimeSlot; 4]) -> Result<(), Error<E>> {
+        use TimeSlot::Disabled;
+        let mut last_slot_dis = slots[0] == Disabled;
+        for i in 0..4 {
+            if last_slot_dis && slots[i] != Disabled {
+                return Err(Error::InvalidArguments);
+            }
+            last_slot_dis = slots[i] == Disabled;
+        }
+        let data = [
+            Register::SLOT_CONFIG0,
+            slots[1].get_mask() << 4 | slots[0].get_mask(),
+            slots[3].get_mask() << 4 | slots[2].get_mask(),
+        ];
+        self.write_data(&data)
     }
 }
