@@ -393,7 +393,7 @@ fn can_change_into_multi_led() {
 }
 
 #[test]
-fn can_change_into_ocimeter() {
+fn can_change_into_oximeter() {
     let transactions = [
         I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b011]),
         I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
