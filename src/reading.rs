@@ -54,7 +54,7 @@ where
         }
     }
 
-    /// Get number of samples available for reading from FIFO
+    /// Get number of samples available for reading from FIFO.
     pub fn get_available_sample_count(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0; 3];
         self.read_data(Register::FIFO_WR_PTR, &mut data)?;
@@ -66,6 +66,14 @@ where
         } else {
             Ok(wr_ptr - rd_ptr)
         }
+    }
+
+    /// Get number of samples lost from FIFO.
+    ///
+    /// If FIFO rollover is not enabled, when the FIFO is full the samples are
+    /// not pushed on to the FIFO.
+    pub fn get_overflow_sample_count(&mut self) -> Result<u8, Error<E>> {
+        self.read_register(Register::OVF_COUNTER)
     }
 
     /// Read status of all interrupts

@@ -29,6 +29,14 @@ macro_rules! read_test {
 
 read_test!(can_get_rev_id, get_revision_id, [], REV_ID, [0xAB], 0xAB);
 read_test!(can_get_part_id, get_part_id, [], PART_ID, [0xAB], 0xAB);
+read_test!(
+    can_get_fifo_overflow,
+    get_overflow_sample_count,
+    [],
+    OVF_COUNTER,
+    [0x15],
+    0x15
+);
 
 macro_rules! available_sample_count_test {
     ($name:ident, $wr_ptr:expr, $rd_ptr:expr, $expected:expr) => {

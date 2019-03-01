@@ -12,6 +12,7 @@ impl Register {
     pub const INT_EN1: u8 = 0x02;
     pub const INT_EN2: u8 = 0x03;
     pub const FIFO_WR_PTR: u8 = 0x04;
+    pub const OVF_COUNTER: u8 = 0x05;
     pub const FIFO_DATA: u8 = 0x07;
     pub const FIFO_CONFIG: u8 = 0x08;
     pub const MODE: u8 = 0x09;
