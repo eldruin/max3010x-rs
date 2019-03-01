@@ -8,25 +8,6 @@ use max3010x::{
 mod common;
 use common::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
-macro_rules! read_test {
-    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, [$($values:expr),*], $expected:expr) => {
-        #[test]
-        fn $name() {
-            let transactions = [
-                I2cTrans::write_read(
-                    DEV_ADDR,
-                    vec![Reg::$reg],
-                    vec![$($values),*]
-                )
-            ];
-            let mut dev = new (&transactions);
-            let result = dev.$method($($arg),*).unwrap();
-            assert_eq!(result, $expected);
-            destroy(dev);
-        }
-    };
-}
-
 read_test!(can_get_rev_id, get_revision_id, [], REV_ID, [0xAB], 0xAB);
 read_test!(can_get_part_id, get_part_id, [], PART_ID, [0xAB], 0xAB);
 read_test!(
@@ -97,18 +78,6 @@ fn can_read_temperature() {
     let result = dev.read_temperature().unwrap();
     assert_near!(-127.5, result, 0.2);
     destroy(dev);
-}
-
-macro_rules! write_test {
-    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, [$($values:expr),*]) => {
-        #[test]
-        fn $name() {
-            let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::$reg, $($values),*])];
-            let mut dev = new (&transactions);
-            dev.$method($($arg),*).unwrap();
-            destroy(dev);
-        }
-    };
 }
 
 write_test!(can_shutdown, shutdown, [], MODE, [BF::SHUTDOWN]);
@@ -230,13 +199,6 @@ fifo_a_full_test!(fifo_a_full_12, L12, 12);
 fifo_a_full_test!(fifo_a_full_13, L13, 13);
 fifo_a_full_test!(fifo_a_full_14, L14, 14);
 fifo_a_full_test!(fifo_a_full_15, L15, 15);
-
-macro_rules! high_low_flag_method_test {
-    ($method_en:ident, $expected_en:expr, $method_dis:ident, $expected_dis:expr, $reg:ident) => {
-        write_test!($method_en, $method_en, [], $reg, [$expected_en]);
-        write_test!($method_dis, $method_dis, [], $reg, [$expected_dis]);
-    };
-}
 
 high_low_flag_method_test!(
     enable_fifo_rollover,

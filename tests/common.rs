@@ -108,3 +108,44 @@ fn assert_near_can_succeed() {
 fn assert_near_can_fail() {
     assert_near!(1.0, 4.0, 0.1);
 }
+
+#[macro_export]
+macro_rules! read_test {
+    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, [$($values:expr),*], $expected:expr) => {
+        #[test]
+        fn $name() {
+            let transactions = [
+                I2cTrans::write_read(
+                    DEV_ADDR,
+                    vec![Reg::$reg],
+                    vec![$($values),*]
+                )
+            ];
+            let mut dev = new (&transactions);
+            let result = dev.$method($($arg),*).unwrap();
+            assert_eq!(result, $expected);
+            destroy(dev);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! write_test {
+    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, [$($values:expr),*]) => {
+        #[test]
+        fn $name() {
+            let transactions = [I2cTrans::write(DEV_ADDR, vec![Reg::$reg, $($values),*])];
+            let mut dev = new (&transactions);
+            dev.$method($($arg),*).unwrap();
+            destroy(dev);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! high_low_flag_method_test {
+    ($method_en:ident, $expected_en:expr, $method_dis:ident, $expected_dis:expr, $reg:ident) => {
+        write_test!($method_en, $method_en, [], $reg, [$expected_en]);
+        write_test!($method_dis, $method_dis, [], $reg, [$expected_dis]);
+    };
+}
