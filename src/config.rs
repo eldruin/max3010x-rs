@@ -1,7 +1,7 @@
 //! Device configuration methods.
 use super::{
-    marker, BitFlags, Config, Error, FifoAlmostFullLevelInterrupt, Led, Max3010x, Register,
-    SampleAveraging, SpO2ADCRange, TimeSlot,
+    marker, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt, Led, Max3010x,
+    Register as Reg, SampleAveraging, SpO2ADCRange, TimeSlot,
 };
 use core::marker::PhantomData;
 use hal::blocking::i2c;
@@ -108,8 +108,8 @@ macro_rules! flip_flag_method_impl {
     ($name:ident, $doc:expr, $reg:ident, $reg_variable:ident, $config_method:ident, $bitflag:ident) => {
         #[doc = $doc]
         pub fn $name(&mut self) -> Result<(), Error<E>> {
-            let $reg_variable = self.$reg_variable.$config_method(BitFlags::$bitflag);
-            self.write_data(&[Register::$reg, $reg_variable.bits])?;
+            let $reg_variable = self.$reg_variable.$config_method(BF::$bitflag);
+            self.write_data(&[Reg::$reg, $reg_variable.bits])?;
             self.$reg_variable = $reg_variable;
             Ok(())
         }
@@ -143,19 +143,19 @@ where
 {
     /// Trigger a software reset
     pub fn reset(&mut self) -> Result<(), Error<E>> {
-        let mode = self.mode.with_high(BitFlags::RESET);
-        self.write_data(&[Register::MODE, mode.bits])
+        let mode = self.mode.with_high(BF::RESET);
+        self.write_data(&[Reg::MODE, mode.bits])
     }
 
     /// Put the device in power-save mode.
     pub fn shutdown(&mut self) -> Result<(), Error<E>> {
-        let mode = self.mode.with_high(BitFlags::SHUTDOWN);
+        let mode = self.mode.with_high(BF::SHUTDOWN);
         self.change_mode(mode)
     }
 
     /// Wake up from power-save mode.
     pub fn wake_up(&mut self) -> Result<(), Error<E>> {
-        let mode = self.mode.with_low(BitFlags::SHUTDOWN);
+        let mode = self.mode.with_low(BF::SHUTDOWN);
         self.change_mode(mode)
     }
 
@@ -165,9 +165,9 @@ where
     /// up to 51.0 mA for 255.
     pub fn set_pulse_amplitude(&mut self, led: Led, amplitude: u8) -> Result<(), Error<E>> {
         match led {
-            Led::Led1 => self.write_data(&[Register::LED1_PA, amplitude]),
-            Led::Led2 => self.write_data(&[Register::LED2_PA, amplitude]),
-            Led::All => self.write_data(&[Register::LED1_PA, amplitude, amplitude]),
+            Led::Led1 => self.write_data(&[Reg::LED1_PA, amplitude]),
+            Led::Led2 => self.write_data(&[Reg::LED2_PA, amplitude]),
+            Led::All => self.write_data(&[Reg::LED1_PA, amplitude, amplitude]),
         }
     }
 
@@ -185,7 +185,7 @@ where
             SampleAveraging::Sa16 => fifo_config.with_high(0b1000_0000),
             SampleAveraging::Sa32 => fifo_config.with_high(0b1010_0000),
         };
-        self.write_data(&[Register::FIFO_CONFIG, fifo_config.bits])?;
+        self.write_data(&[Reg::FIFO_CONFIG, fifo_config.bits])?;
         self.fifo_config = fifo_config;
         Ok(())
     }
@@ -200,14 +200,14 @@ where
             .fifo_config
             .with_low(0b0000_0111)
             .with_high(level.get_register_value());
-        self.write_data(&[Register::FIFO_CONFIG, fifo_config.bits])?;
+        self.write_data(&[Reg::FIFO_CONFIG, fifo_config.bits])?;
         self.fifo_config = fifo_config;
         Ok(())
     }
 
     /// Resets the FIFO read and write pointers and overflow counter to 0.
     pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
-        self.write_data(&[Register::FIFO_WR_PTR, 0, 0, 0])
+        self.write_data(&[Reg::FIFO_WR_PTR, 0, 0, 0])
     }
 
     high_low_flag_impl!(
@@ -251,7 +251,7 @@ where
     );
 
     fn change_mode(&mut self, mode: Config) -> Result<(), Error<E>> {
-        self.write_data(&[Register::MODE, mode.bits])?;
+        self.write_data(&[Reg::MODE, mode.bits])?;
         self.mode = mode;
         Ok(())
     }
@@ -286,7 +286,7 @@ where
             last_slot_dis = slots[i] == Disabled;
         }
         let data = [
-            Register::SLOT_CONFIG0,
+            Reg::SLOT_CONFIG0,
             slots[1].get_mask() << 4 | slots[0].get_mask(),
             slots[3].get_mask() << 4 | slots[2].get_mask(),
         ];
@@ -300,20 +300,21 @@ where
 {
     /// Configure SpO2 (oximeter) analog-to-digital converter range.
     pub fn set_adc_range(&mut self, range: SpO2ADCRange) -> Result<(), Error<E>> {
-        let spo2_config = self
+        use SpO2ADCRange::*;
+        let new_config = self
             .spo2_config
-            .with_low(BitFlags::SPO2_ADC_RGE0)
-            .with_low(BitFlags::SPO2_ADC_RGE1);
-        let spo2_config = match range {
-            SpO2ADCRange::Fs2k => spo2_config,
-            SpO2ADCRange::Fs4k => spo2_config.with_high(BitFlags::SPO2_ADC_RGE0),
-            SpO2ADCRange::Fs8k => spo2_config.with_high(BitFlags::SPO2_ADC_RGE1),
-            SpO2ADCRange::Fs16k => spo2_config
-                .with_high(BitFlags::SPO2_ADC_RGE0)
-                .with_high(BitFlags::SPO2_ADC_RGE1),
+            .with_low(BF::SPO2_ADC_RGE0)
+            .with_low(BF::SPO2_ADC_RGE1);
+        let new_config = match range {
+            Fs2k => new_config,
+            Fs4k => new_config.with_high(BF::SPO2_ADC_RGE0),
+            Fs8k => new_config.with_high(BF::SPO2_ADC_RGE1),
+            Fs16k => new_config
+                .with_high(BF::SPO2_ADC_RGE0)
+                .with_high(BF::SPO2_ADC_RGE1),
         };
-        self.write_data(&[Register::SPO2_CONFIG, spo2_config.bits])?;
-        self.spo2_config = spo2_config;
+        self.write_data(&[Reg::SPO2_CONFIG, new_config.bits])?;
+        self.spo2_config = new_config;
         Ok(())
     }
 }
