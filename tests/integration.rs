@@ -2,9 +2,9 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 extern crate nb;
-use max3010x::{Error, FifoAlmostFullLevelInterrupt, Led, SampleAveraging, TimeSlot};
-mod common;
-use common::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
+use max3010x::{FifoAlmostFullLevelInterrupt, Led, SampleAveraging, TimeSlot};
+mod base;
+use base::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
 read_test!(can_get_rev_id, get_revision_id, [], REV_ID, [0xAB], 0xAB);
 read_test!(can_get_part_id, get_part_id, [], PART_ID, [0xAB], 0xAB);
