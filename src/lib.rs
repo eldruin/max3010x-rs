@@ -113,6 +113,19 @@ pub enum FifoAlmostFullLevelInterrupt {
     L15,
 }
 
+/// SpO2 (oximeter) ADC range
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SpO2ADCRange {
+    /// Full scale 2048 nA
+    Fs2k,
+    /// Full scale 4094 nA
+    Fs4k,
+    /// Full scale 8192 nA
+    Fs8k,
+    /// Full scale 16394 nA
+    Fs16k,
+}
+
 /// Interrupt status flags
 #[derive(Debug, Clone)]
 pub struct InterruptStatus {
@@ -141,6 +154,7 @@ impl Register {
     const FIFO_DATA: u8 = 0x07;
     const FIFO_CONFIG: u8 = 0x08;
     const MODE: u8 = 0x09;
+    const SPO2_CONFIG: u8 = 0x0A;
     const LED1_PA: u8 = 0x0C;
     const LED2_PA: u8 = 0x0D;
     const SLOT_CONFIG0: u8 = 0x11;
@@ -161,6 +175,8 @@ impl BitFlags {
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
     const FIFO_ROLLOVER_EN: u8 = 0b0001_0000;
+    const SPO2_ADC_RGE0: u8 = 0b0010_0000;
+    const SPO2_ADC_RGE1: u8 = 0b0100_0000;
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]
@@ -202,6 +218,7 @@ pub struct Max3010x<I2C, IC, MODE> {
     temperature_measurement_started: bool,
     mode: Config,
     fifo_config: Config,
+    spo2_config: Config,
     int_en1: Config,
     int_en2: Config,
     _ic: PhantomData<IC>,
@@ -219,6 +236,7 @@ where
             temperature_measurement_started: false,
             mode: Config { bits: 0 },
             fifo_config: Config { bits: 0 },
+            spo2_config: Config { bits: 0 },
             int_en1: Config { bits: 0 },
             int_en2: Config { bits: 0 },
             _ic: PhantomData,

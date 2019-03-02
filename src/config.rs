@@ -1,7 +1,7 @@
 //! Device configuration methods.
 use super::{
     marker, BitFlags, Config, Error, FifoAlmostFullLevelInterrupt, Led, Max3010x, Register,
-    SampleAveraging, TimeSlot,
+    SampleAveraging, SpO2ADCRange, TimeSlot,
 };
 use core::marker::PhantomData;
 use hal::blocking::i2c;
@@ -48,6 +48,7 @@ where
             temperature_measurement_started: self.temperature_measurement_started,
             mode: self.mode,
             fifo_config: self.fifo_config,
+            spo2_config: self.spo2_config,
             int_en1: self.int_en1,
             int_en2: self.int_en2,
             _ic: PhantomData,
@@ -70,6 +71,7 @@ where
             temperature_measurement_started: self.temperature_measurement_started,
             mode: self.mode,
             fifo_config: self.fifo_config,
+            spo2_config: self.spo2_config,
             int_en1: self.int_en1,
             int_en2: self.int_en2,
             _ic: PhantomData,
@@ -92,6 +94,7 @@ where
             temperature_measurement_started: self.temperature_measurement_started,
             mode: self.mode,
             fifo_config: self.fifo_config,
+            spo2_config: self.spo2_config,
             int_en1: self.int_en1,
             int_en2: self.int_en2,
             _ic: PhantomData,
@@ -288,5 +291,29 @@ where
             slots[3].get_mask() << 4 | slots[2].get_mask(),
         ];
         self.write_data(&data)
+    }
+}
+
+impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::Oximeter>
+where
+    I2C: i2c::Write<Error = E>,
+{
+    /// Configure SpO2 (oximeter) analog-to-digital converter range.
+    pub fn set_adc_range(&mut self, range: SpO2ADCRange) -> Result<(), Error<E>> {
+        let spo2_config = self
+            .spo2_config
+            .with_low(BitFlags::SPO2_ADC_RGE0)
+            .with_low(BitFlags::SPO2_ADC_RGE1);
+        let spo2_config = match range {
+            SpO2ADCRange::Fs2k => spo2_config,
+            SpO2ADCRange::Fs4k => spo2_config.with_high(BitFlags::SPO2_ADC_RGE0),
+            SpO2ADCRange::Fs8k => spo2_config.with_high(BitFlags::SPO2_ADC_RGE1),
+            SpO2ADCRange::Fs16k => spo2_config
+                .with_high(BitFlags::SPO2_ADC_RGE0)
+                .with_high(BitFlags::SPO2_ADC_RGE1),
+        };
+        self.write_data(&[Register::SPO2_CONFIG, spo2_config.bits])?;
+        self.spo2_config = spo2_config;
+        Ok(())
     }
 }

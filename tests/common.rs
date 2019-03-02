@@ -16,6 +16,7 @@ impl Register {
     pub const FIFO_DATA: u8 = 0x07;
     pub const FIFO_CONFIG: u8 = 0x08;
     pub const MODE: u8 = 0x09;
+    pub const SPO2_CONFIG: u8 = 0x0A;
     pub const LED1_PA: u8 = 0x0C;
     pub const LED2_PA: u8 = 0x0D;
     pub const SLOT_CONFIG0: u8 = 0x11;
