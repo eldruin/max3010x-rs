@@ -1,7 +1,7 @@
 //! Device configuration methods.
 use super::{
-    marker, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt, Led, Max3010x,
-    Register as Reg, SampleAveraging, SpO2ADCRange, TimeSlot,
+    marker, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt, Led, LedPulseWidth,
+    Max3010x, Register as Reg, SampleAveraging, SpO2ADCRange, TimeSlot,
 };
 use core::marker::PhantomData;
 use hal::blocking::i2c;
@@ -253,6 +253,29 @@ where
     fn change_mode(&mut self, mode: Config) -> Result<(), Error<E>> {
         self.write_data(&[Reg::MODE, mode.bits])?;
         self.mode = mode;
+        Ok(())
+    }
+}
+
+impl<I2C, E, MODE> Max3010x<I2C, marker::ic::Max30102, MODE>
+where
+    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+{
+    /// Configure the LED pulse width.
+    ///
+    /// This determines the ADC resolution.
+    pub fn set_led_pulse_width(&mut self, width: LedPulseWidth) -> Result<(), Error<E>> {
+        use LedPulseWidth::*;
+        // TODO check compatibility with sample rate
+        let config = self.spo2_config.with_low(BF::LED_PW0).with_low(BF::LED_PW1);
+        let config = match width {
+            Pw69 => config,
+            Pw118 => config.with_high(BF::LED_PW0),
+            Pw215 => config.with_high(BF::LED_PW1),
+            Pw411 => config.with_high(BF::LED_PW0).with_high(BF::LED_PW1),
+        };
+        self.write_data(&[Reg::SPO2_CONFIG, config.bits])?;
+        self.spo2_config = config;
         Ok(())
     }
 }

@@ -113,6 +113,19 @@ pub enum FifoAlmostFullLevelInterrupt {
     L15,
 }
 
+/// LED pulse width (determines ADC resolution)
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum LedPulseWidth {
+    /// 69 μs pulse width (15-bit ADC resolution)
+    Pw69,
+    /// 118 μs pulse width (16-bit ADC resolution)
+    Pw118,
+    /// 215 μs pulse width (17-bit ADC resolution)
+    Pw215,
+    /// 411 μs pulse width (18-bit ADC resolution)
+    Pw411,
+}
+
 /// SpO2 (oximeter) ADC range
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SpO2ADCRange {
@@ -177,6 +190,8 @@ impl BitFlags {
     const FIFO_ROLLOVER_EN: u8 = 0b0001_0000;
     const SPO2_ADC_RGE0: u8 = 0b0010_0000;
     const SPO2_ADC_RGE1: u8 = 0b0100_0000;
+    const LED_PW0: u8 = 0b0000_0001;
+    const LED_PW1: u8 = 0b0000_0010;
 }
 
 #[derive(Debug, Default, Clone, PartialEq)]

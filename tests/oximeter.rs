@@ -1,7 +1,7 @@
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
-use max3010x::SpO2ADCRange;
+use max3010x::{LedPulseWidth as LedPw, SpO2ADCRange};
 mod base;
 use base::{destroy, new, Register as Reg, DEV_ADDR};
 
@@ -37,3 +37,8 @@ set_adc_range!(adc_rge_2k, Fs2k, 0);
 set_adc_range!(adc_rge_4k, Fs4k, 1 << 5);
 set_adc_range!(adc_rge_8k, Fs8k, 2 << 5);
 set_adc_range!(adc_rge_16k, Fs16k, 3 << 5);
+
+set_led_pw_test!(can_set_led_pw_69, into_oximeter, 0b11, LedPw::Pw69, 0);
+set_led_pw_test!(can_set_led_pw_118, into_oximeter, 0b11, LedPw::Pw118, 1);
+set_led_pw_test!(can_set_led_pw_215, into_oximeter, 0b11, LedPw::Pw215, 2);
+set_led_pw_test!(can_set_led_pw_411, into_oximeter, 0b11, LedPw::Pw411, 3);
