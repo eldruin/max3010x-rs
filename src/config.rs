@@ -1,7 +1,7 @@
 //! Device configuration methods.
 use super::{
-    marker, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt, Led, LedPulseWidth,
-    Max3010x, Register as Reg, SampleAveraging, SpO2ADCRange, TimeSlot,
+    marker, private, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt, Led,
+    LedPulseWidth, Max3010x, Register as Reg, SampleAveraging, SampleRate, SpO2ADCRange, TimeSlot,
 };
 use core::marker::PhantomData;
 use hal::blocking::i2c;
@@ -257,22 +257,128 @@ where
     }
 }
 
+#[doc(hidden)]
+pub trait ValidateSrPw: private::Sealed {
+    /// Check the pulse width and sample rate combination
+    fn check<E>(width: LedPulseWidth, rate: SampleRate) -> Result<(), Error<E>>;
+}
+
+impl ValidateSrPw for marker::mode::HeartRate {
+    fn check<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+        use LedPulseWidth::*;
+        use SampleRate::*;
+
+        if (sr == Sps3200 && pw == Pw118)
+            || (sr == Sps3200 && pw == Pw215)
+            || (sr == Sps3200 && pw == Pw411)
+            || (sr == Sps1600 && pw == Pw411)
+        {
+            Err(Error::InvalidArguments)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl ValidateSrPw for marker::mode::Oximeter {
+    fn check<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+        use LedPulseWidth::*;
+        use SampleRate::*;
+
+        if sr == Sps3200
+            || (sr == Sps1600 && pw == Pw118)
+            || (sr == Sps1600 && pw == Pw215)
+            || (sr == Sps1600 && pw == Pw411)
+            || (sr == Sps1000 && pw == Pw215)
+            || (sr == Sps1000 && pw == Pw411)
+            || (sr == Sps800 && pw == Pw411)
+        {
+            Err(Error::InvalidArguments)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl ValidateSrPw for marker::mode::MultiLED {
+    fn check<E>(_width: LedPulseWidth, _rate: SampleRate) -> Result<(), Error<E>> {
+        Ok(())
+    }
+}
+
 impl<I2C, E, MODE> Max3010x<I2C, marker::ic::Max30102, MODE>
 where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    MODE: ValidateSrPw,
 {
+    fn get_pulse_width(&self) -> LedPulseWidth {
+        let pw_bits = self.spo2_config.bits & (BF::LED_PW0 | BF::LED_PW1);
+        match pw_bits {
+            0 => LedPulseWidth::Pw69,
+            1 => LedPulseWidth::Pw118,
+            2 => LedPulseWidth::Pw215,
+            3 => LedPulseWidth::Pw411,
+            _ => unreachable!(),
+        }
+    }
+
+    fn get_sample_rate(&self) -> SampleRate {
+        let sr_bits = (self.spo2_config.bits & (BF::SPO2_SR0 | BF::SPO2_SR1 | BF::SPO2_SR2)) >> 2;
+        match sr_bits {
+            0 => SampleRate::Sps50,
+            1 => SampleRate::Sps100,
+            2 => SampleRate::Sps200,
+            3 => SampleRate::Sps400,
+            4 => SampleRate::Sps800,
+            5 => SampleRate::Sps1000,
+            6 => SampleRate::Sps1600,
+            7 => SampleRate::Sps3200,
+            _ => unreachable!(),
+        }
+    }
+
     /// Configure the LED pulse width.
     ///
     /// This determines the ADC resolution.
     pub fn set_led_pulse_width(&mut self, width: LedPulseWidth) -> Result<(), Error<E>> {
         use LedPulseWidth::*;
-        // TODO check compatibility with sample rate
+        MODE::check::<E>(width, self.get_sample_rate())?;
         let config = self.spo2_config.with_low(BF::LED_PW0).with_low(BF::LED_PW1);
         let config = match width {
             Pw69 => config,
             Pw118 => config.with_high(BF::LED_PW0),
             Pw215 => config.with_high(BF::LED_PW1),
             Pw411 => config.with_high(BF::LED_PW0).with_high(BF::LED_PW1),
+        };
+        self.write_data(&[Reg::SPO2_CONFIG, config.bits])?;
+        self.spo2_config = config;
+        Ok(())
+    }
+
+    /// Configure the sample rate
+    ///
+    /// This depends on the LED pulse width. Calling this with an inappropriate
+    /// value for the selected pulse with will return `Error::InvalidArgument`
+    pub fn set_sample_rate(&mut self, sample_rate: SampleRate) -> Result<(), Error<E>> {
+        use SampleRate::*;
+        MODE::check::<E>(self.get_pulse_width(), sample_rate)?;
+        let config = self
+            .spo2_config
+            .with_low(BF::SPO2_SR0)
+            .with_low(BF::SPO2_SR1)
+            .with_low(BF::SPO2_SR2);
+        let config = match sample_rate {
+            Sps50 => config,
+            Sps100 => config.with_high(BF::SPO2_SR0),
+            Sps200 => config.with_high(BF::SPO2_SR1),
+            Sps400 => config.with_high(BF::SPO2_SR1).with_high(BF::SPO2_SR0),
+            Sps800 => config.with_high(BF::SPO2_SR2),
+            Sps1000 => config.with_high(BF::SPO2_SR2).with_high(BF::SPO2_SR0),
+            Sps1600 => config.with_high(BF::SPO2_SR2).with_high(BF::SPO2_SR1),
+            Sps3200 => config
+                .with_high(BF::SPO2_SR2)
+                .with_high(BF::SPO2_SR1)
+                .with_high(BF::SPO2_SR0),
         };
         self.write_data(&[Reg::SPO2_CONFIG, config.bits])?;
         self.spo2_config = config;
@@ -339,5 +445,48 @@ where
         self.write_data(&[Reg::SPO2_CONFIG, new_config.bits])?;
         self.spo2_config = new_config;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        marker::mode::{HeartRate, Oximeter},
+        LedPulseWidth as LedPw, SampleRate as SR, ValidateSrPw,
+    };
+
+    #[test]
+    fn invalid_combinations_oximeter_sample_rate_800_pulse_width_411() {
+        Oximeter::check::<()>(LedPw::Pw411, SR::Sps800).expect_err("Should return error.");
+    }
+
+    #[test]
+    fn invalid_combinations_oximeter_sample_rate_1000_pulse_width() {
+        Oximeter::check::<()>(LedPw::Pw215, SR::Sps1000).expect_err("Should return error.");
+        Oximeter::check::<()>(LedPw::Pw411, SR::Sps1000).expect_err("Should return error.");
+    }
+    #[test]
+    fn invalid_combinations_oximeter_sample_rate_1600_pulse_width() {
+        Oximeter::check::<()>(LedPw::Pw118, SR::Sps1600).expect_err("Should return error.");
+        Oximeter::check::<()>(LedPw::Pw215, SR::Sps1600).expect_err("Should return error.");
+        Oximeter::check::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
+    }
+    #[test]
+    fn invalid_combinations_oximeter_sample_rate_3200_pulse_width() {
+        Oximeter::check::<()>(LedPw::Pw69, SR::Sps3200).expect_err("Should return error.");
+        Oximeter::check::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
+        Oximeter::check::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
+        Oximeter::check::<()>(LedPw::Pw411, SR::Sps3200).expect_err("Should return error.");
+    }
+
+    #[test]
+    fn invalid_combinations_heart_rate_sample_rate_1600_pulse_width_411() {
+        HeartRate::check::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
+    }
+    #[test]
+    fn invalid_combinations_heart_rate_sample_rate_3200_pulse_width() {
+        HeartRate::check::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
+        HeartRate::check::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
+        HeartRate::check::<()>(LedPw::Pw411, SR::Sps3200).expect_err("Should return error.");
     }
 }

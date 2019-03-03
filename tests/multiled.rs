@@ -2,7 +2,7 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 extern crate nb;
-use max3010x::{LedPulseWidth as LedPw, TimeSlot};
+use max3010x::{LedPulseWidth as LedPw, SampleRate as SR, TimeSlot};
 mod base;
 use base::{destroy, new, Register as Reg, DEV_ADDR};
 
@@ -83,3 +83,12 @@ set_led_pw_test!(can_set_led_pw_69, into_multi_led, 0b111, LedPw::Pw69, 0);
 set_led_pw_test!(can_set_led_pw_118, into_multi_led, 0b111, LedPw::Pw118, 1);
 set_led_pw_test!(can_set_led_pw_215, into_multi_led, 0b111, LedPw::Pw215, 2);
 set_led_pw_test!(can_set_led_pw_411, into_multi_led, 0b111, LedPw::Pw411, 3);
+
+set_sample_rate_test!(can_set_sr_50, into_multi_led, 0b111, SR::Sps50, 0);
+set_sample_rate_test!(can_set_sr_100, into_multi_led, 0b111, SR::Sps100, 1 << 2);
+set_sample_rate_test!(can_set_sr_200, into_multi_led, 0b111, SR::Sps200, 2 << 2);
+set_sample_rate_test!(can_set_sr_400, into_multi_led, 0b111, SR::Sps400, 3 << 2);
+set_sample_rate_test!(can_set_sr_800, into_multi_led, 0b111, SR::Sps800, 4 << 2);
+set_sample_rate_test!(can_set_sr_1000, into_multi_led, 0b111, SR::Sps1000, 5 << 2);
+set_sample_rate_test!(can_set_sr_1600, into_multi_led, 0b111, SR::Sps1600, 6 << 2);
+set_sample_rate_test!(can_set_sr_3200, into_multi_led, 0b111, SR::Sps3200, 7 << 2);

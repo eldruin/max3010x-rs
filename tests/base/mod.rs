@@ -151,17 +151,18 @@ macro_rules! set_led_pw_test {
         );
     };
 }
-        #[test]
-        fn $name() {
-            let transactions = [
-                I2cTrans::write(DEV_ADDR, vec![Reg::MODE, $mode]),
-                I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
-                I2cTrans::write(DEV_ADDR, vec![Reg::SPO2_CONFIG, $expected]),
-            ];
-            let dev = new(&transactions);
-            let mut dev = dev.$mode_method().unwrap();
-            dev.set_led_pulse_width($width).unwrap();
-            destroy(dev);
-        }
+
+#[macro_export]
+macro_rules! set_sample_rate_test {
+    ($name:ident, $mode_method:ident, $mode:expr, $width:expr, $expected:expr) => {
+        set_in_mode_test!(
+            $name,
+            $mode_method,
+            $mode,
+            set_sample_rate,
+            $width,
+            SPO2_CONFIG,
+            $expected
+        );
     };
 }
