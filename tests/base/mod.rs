@@ -119,8 +119,38 @@ macro_rules! high_low_flag_method_test {
 }
 
 #[macro_export]
+macro_rules! set_in_mode_test {
+    ($name:ident, $mode_method:ident, $mode:expr, $method:ident, $arg:expr,
+     $reg:ident, $expected:expr) => {
+        #[test]
+        fn $name() {
+            let transactions = [
+                I2cTrans::write(DEV_ADDR, vec![Reg::MODE, $mode]),
+                I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+                I2cTrans::write(DEV_ADDR, vec![Reg::$reg, $expected]),
+            ];
+            let dev = new(&transactions);
+            let mut dev = dev.$mode_method().unwrap();
+            dev.$method($arg).unwrap();
+            destroy(dev);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! set_led_pw_test {
     ($name:ident, $mode_method:ident, $mode:expr, $width:expr, $expected:expr) => {
+        set_in_mode_test!(
+            $name,
+            $mode_method,
+            $mode,
+            set_led_pulse_width,
+            $width,
+            SPO2_CONFIG,
+            $expected
+        );
+    };
+}
         #[test]
         fn $name() {
             let transactions = [
