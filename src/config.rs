@@ -268,9 +268,7 @@ impl ValidateSrPw for marker::mode::HeartRate {
         use LedPulseWidth::*;
         use SampleRate::*;
 
-        if (sr == Sps3200 && pw == Pw118)
-            || (sr == Sps3200 && pw == Pw215)
-            || (sr == Sps3200 && pw == Pw411)
+        if (sr == Sps3200 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
             || (sr == Sps1600 && pw == Pw411)
         {
             Err(Error::InvalidArguments)
@@ -286,11 +284,8 @@ impl ValidateSrPw for marker::mode::Oximeter {
         use SampleRate::*;
 
         if sr == Sps3200
-            || (sr == Sps1600 && pw == Pw118)
-            || (sr == Sps1600 && pw == Pw215)
-            || (sr == Sps1600 && pw == Pw411)
-            || (sr == Sps1000 && pw == Pw215)
-            || (sr == Sps1000 && pw == Pw411)
+            || (sr == Sps1600 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
+            || (sr == Sps1000 && (pw == Pw215 || pw == Pw411))
             || (sr == Sps800 && pw == Pw411)
         {
             Err(Error::InvalidArguments)
