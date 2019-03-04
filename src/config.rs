@@ -402,12 +402,12 @@ where
     /// Failing to do so will return `Error::InvalidArguments`.
     pub fn set_led_time_slots(&mut self, slots: [TimeSlot; 4]) -> Result<(), Error<E>> {
         use TimeSlot::Disabled;
-        let mut last_slot_dis = slots[0] == Disabled;
-        for i in 0..4 {
-            if last_slot_dis && slots[i] != Disabled {
+        let mut last_slot_is_disabled = slots[0] == Disabled;
+        for slot in &slots {
+            if last_slot_is_disabled && *slot != Disabled {
                 return Err(Error::InvalidArguments);
             }
-            last_slot_dis = slots[i] == Disabled;
+            last_slot_is_disabled = *slot == Disabled;
         }
         let data = [
             Reg::SLOT_CONFIG0,
