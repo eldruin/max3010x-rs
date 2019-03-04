@@ -153,7 +153,7 @@ pub enum SampleRate {
 
 /// SpO2 (oximeter) ADC range
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum SpO2ADCRange {
+pub enum SpO2AdcRange {
     /// Full scale 2048 nA
     Fs2k,
     /// Full scale 4094 nA

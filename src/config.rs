@@ -1,7 +1,7 @@
 //! Device configuration methods.
 use super::{
     marker, private, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt, Led,
-    LedPulseWidth, Max3010x, Register as Reg, SampleAveraging, SampleRate, SpO2ADCRange, TimeSlot,
+    LedPulseWidth, Max3010x, Register as Reg, SampleAveraging, SampleRate, SpO2AdcRange, TimeSlot,
 };
 use core::marker::PhantomData;
 use hal::blocking::i2c;
@@ -428,8 +428,8 @@ where
     I2C: i2c::Write<Error = E>,
 {
     /// Configure SpO2 (oximeter) analog-to-digital converter range.
-    pub fn set_adc_range(&mut self, range: SpO2ADCRange) -> Result<(), Error<E>> {
-        use SpO2ADCRange::*;
+    pub fn set_adc_range(&mut self, range: SpO2AdcRange) -> Result<(), Error<E>> {
+        use SpO2AdcRange::*;
         let new_config = self
             .spo2_config
             .with_low(BF::SPO2_ADC_RGE0)
