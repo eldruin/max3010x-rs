@@ -79,16 +79,31 @@ fn can_set_only_one_led_slots() {
     );
 }
 
-set_led_pw_test!(can_set_led_pw_69, into_multi_led, 0b111, LedPw::Pw69, 0);
-set_led_pw_test!(can_set_led_pw_118, into_multi_led, 0b111, LedPw::Pw118, 1);
-set_led_pw_test!(can_set_led_pw_215, into_multi_led, 0b111, LedPw::Pw215, 2);
-set_led_pw_test!(can_set_led_pw_411, into_multi_led, 0b111, LedPw::Pw411, 3);
+#[macro_export]
+macro_rules! set_test {
+    ($name:ident, $method:ident, $width:expr, $expected:expr) => {
+        set_in_mode_test!(
+            $name,
+            into_multi_led,
+            0b111,
+            $method,
+            $width,
+            SPO2_CONFIG,
+            $expected
+        );
+    };
+}
 
-set_sample_rate_test!(can_set_sr_50, into_multi_led, 0b111, SR::Sps50, 0);
-set_sample_rate_test!(can_set_sr_100, into_multi_led, 0b111, SR::Sps100, 1 << 2);
-set_sample_rate_test!(can_set_sr_200, into_multi_led, 0b111, SR::Sps200, 2 << 2);
-set_sample_rate_test!(can_set_sr_400, into_multi_led, 0b111, SR::Sps400, 3 << 2);
-set_sample_rate_test!(can_set_sr_800, into_multi_led, 0b111, SR::Sps800, 4 << 2);
-set_sample_rate_test!(can_set_sr_1000, into_multi_led, 0b111, SR::Sps1000, 5 << 2);
-set_sample_rate_test!(can_set_sr_1600, into_multi_led, 0b111, SR::Sps1600, 6 << 2);
-set_sample_rate_test!(can_set_sr_3200, into_multi_led, 0b111, SR::Sps3200, 7 << 2);
+set_test!(can_set_led_pw_69, set_led_pulse_width, LedPw::Pw69, 0);
+set_test!(can_set_led_pw_118, set_led_pulse_width, LedPw::Pw118, 1);
+set_test!(can_set_led_pw_215, set_led_pulse_width, LedPw::Pw215, 2);
+set_test!(can_set_led_pw_411, set_led_pulse_width, LedPw::Pw411, 3);
+
+set_test!(can_set_sr_50, set_sample_rate, SR::Sps50, 0);
+set_test!(can_set_sr_100, set_sample_rate, SR::Sps100, 1 << 2);
+set_test!(can_set_sr_200, set_sample_rate, SR::Sps200, 2 << 2);
+set_test!(can_set_sr_400, set_sample_rate, SR::Sps400, 3 << 2);
+set_test!(can_set_sr_800, set_sample_rate, SR::Sps800, 4 << 2);
+set_test!(can_set_sr_1000, set_sample_rate, SR::Sps1000, 5 << 2);
+set_test!(can_set_sr_1600, set_sample_rate, SR::Sps1600, 6 << 2);
+set_test!(can_set_sr_3200, set_sample_rate, SR::Sps3200, 7 << 2);

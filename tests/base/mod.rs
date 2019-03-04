@@ -136,33 +136,3 @@ macro_rules! set_in_mode_test {
         }
     };
 }
-
-#[macro_export]
-macro_rules! set_led_pw_test {
-    ($name:ident, $mode_method:ident, $mode:expr, $width:expr, $expected:expr) => {
-        set_in_mode_test!(
-            $name,
-            $mode_method,
-            $mode,
-            set_led_pulse_width,
-            $width,
-            SPO2_CONFIG,
-            $expected
-        );
-    };
-}
-
-#[macro_export]
-macro_rules! set_sample_rate_test {
-    ($name:ident, $mode_method:ident, $mode:expr, $width:expr, $expected:expr) => {
-        set_in_mode_test!(
-            $name,
-            $mode_method,
-            $mode,
-            set_sample_rate,
-            $width,
-            SPO2_CONFIG,
-            $expected
-        );
-    };
-}
