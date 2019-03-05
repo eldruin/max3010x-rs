@@ -50,7 +50,7 @@ set_test!(can_set_sr_1600, set_sample_rate, SR::Sps1600, 6 << 2);
 
 #[test]
 fn cannot_set_sr_3200() {
-    // Exemplary test. All other combinations tested in unit tests
+    // Exemplary integration test. All other combinations tested in unit tests
     let transactions = [
         I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b11]),
         I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
