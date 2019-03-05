@@ -120,7 +120,7 @@ macro_rules! high_low_flag_method_test {
 
 #[macro_export]
 macro_rules! set_in_mode_test {
-    ($name:ident, $mode_method:ident, $mode:expr, $method:ident, $arg:expr,
+    ($name:ident, $mode_method:ident, $mode:expr, $method:ident, [$($arg:expr),*],
      $reg:ident, $expected:expr) => {
         #[test]
         fn $name() {
@@ -131,7 +131,7 @@ macro_rules! set_in_mode_test {
             ];
             let dev = new(&transactions);
             let mut dev = dev.$mode_method().unwrap();
-            dev.$method($arg).unwrap();
+            dev.$method($($arg),*).unwrap();
             destroy(dev);
         }
     };

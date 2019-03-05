@@ -81,13 +81,13 @@ fn can_set_only_one_led_slots() {
 
 #[macro_export]
 macro_rules! set_test {
-    ($name:ident, $method:ident, $width:expr, $expected:expr) => {
+    ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
         set_in_mode_test!(
             $name,
             into_multi_led,
             0b111,
             $method,
-            $width,
+            [$arg],
             SPO2_CONFIG,
             $expected
         );

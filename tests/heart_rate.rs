@@ -19,13 +19,13 @@ fn can_change_into_hr() {
 
 #[macro_export]
 macro_rules! set_test {
-    ($name:ident, $method:ident, $width:expr, $expected:expr) => {
+    ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
         set_in_mode_test!(
             $name,
             into_heart_rate,
             0b10,
             $method,
-            $width,
+            [$arg],
             SPO2_CONFIG,
             $expected
         );

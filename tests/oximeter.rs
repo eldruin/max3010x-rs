@@ -16,15 +16,14 @@ fn can_change_into_oximeter() {
     destroy(dev);
 }
 
-#[macro_export]
 macro_rules! set_test {
-    ($name:ident, $method:ident, $width:expr, $expected:expr) => {
+    ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
         set_in_mode_test!(
             $name,
             into_oximeter,
             0b11,
             $method,
-            $width,
+            [$arg],
             SPO2_CONFIG,
             $expected
         );
