@@ -17,7 +17,6 @@ fn can_change_into_hr() {
     destroy(dev);
 }
 
-#[macro_export]
 macro_rules! set_test {
     ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
         set_in_mode_test!(

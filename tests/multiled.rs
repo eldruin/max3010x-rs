@@ -79,7 +79,6 @@ fn can_set_only_one_led_slots() {
     );
 }
 
-#[macro_export]
 macro_rules! set_test {
     ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
         set_in_mode_test!(
