@@ -3,7 +3,7 @@ use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 use max3010x::{LedPulseWidth as LedPw, SampleRate as SR, SpO2AdcRange as AdcRge};
 mod base;
-use base::{destroy, new, Register as Reg, DEV_ADDR};
+use base::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
 #[test]
 fn can_change_into_oximeter() {
@@ -29,6 +29,25 @@ macro_rules! set_test {
         );
     };
 }
+
+set_in_mode_test!(
+    enable_new_fifo_data_ready_interrupt,
+    into_oximeter,
+    0b11,
+    enable_new_fifo_data_ready_interrupt,
+    [],
+    INT_EN1,
+    BF::PPG_RDY_INT
+);
+set_in_mode_test!(
+    disable_new_fifo_data_ready_interrupt,
+    into_oximeter,
+    0b11,
+    disable_new_fifo_data_ready_interrupt,
+    [],
+    INT_EN1,
+    0
+);
 
 set_test!(adc_rge_2k, set_adc_range, AdcRge::Fs2k, 0);
 set_test!(adc_rge_4k, set_adc_range, AdcRge::Fs4k, 1 << 5);

@@ -418,6 +418,21 @@ where
     }
 }
 
+impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::HeartRate>
+where
+    I2C: i2c::Write<Error = E>,
+{
+    high_low_flag_impl!(
+        enable_new_fifo_data_ready_interrupt,
+        "Enable new FIFO data ready (PPG_RDY) interrupt",
+        disable_new_fifo_data_ready_interrupt,
+        "Disable new FIFO data ready (PPG_RDY) interrupt",
+        INT_EN1,
+        int_en1,
+        PPG_RDY_INT
+    );
+}
+
 impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::Oximeter>
 where
     I2C: i2c::Write<Error = E>,
@@ -441,6 +456,16 @@ where
         self.spo2_config = new_config;
         Ok(())
     }
+
+    high_low_flag_impl!(
+        enable_new_fifo_data_ready_interrupt,
+        "Enable new FIFO data ready (PPG_RDY) interrupt",
+        disable_new_fifo_data_ready_interrupt,
+        "Disable new FIFO data ready (PPG_RDY) interrupt",
+        INT_EN1,
+        int_en1,
+        PPG_RDY_INT
+    );
 }
 
 #[cfg(test)]

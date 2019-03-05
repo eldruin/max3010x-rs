@@ -4,7 +4,7 @@ extern crate max3010x;
 extern crate nb;
 use max3010x::{LedPulseWidth as LedPw, SampleRate as SR};
 mod base;
-use base::{destroy, new, Register as Reg, DEV_ADDR};
+use base::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
 #[test]
 fn can_change_into_hr() {
@@ -31,6 +31,25 @@ macro_rules! set_test {
         );
     };
 }
+
+set_in_mode_test!(
+    enable_new_fifo_data_ready_interrupt,
+    into_heart_rate,
+    0b10,
+    enable_new_fifo_data_ready_interrupt,
+    [],
+    INT_EN1,
+    BF::PPG_RDY_INT
+);
+set_in_mode_test!(
+    disable_new_fifo_data_ready_interrupt,
+    into_heart_rate,
+    0b10,
+    disable_new_fifo_data_ready_interrupt,
+    [],
+    INT_EN1,
+    0
+);
 
 set_test!(can_set_led_pw_69, set_led_pulse_width, LedPw::Pw69, 0);
 set_test!(can_set_led_pw_118, set_led_pulse_width, LedPw::Pw118, 1);
