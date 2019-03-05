@@ -17,38 +17,40 @@ fn can_change_into_hr() {
     destroy(dev);
 }
 
-macro_rules! set_test {
-    ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
+macro_rules! set_heart_rate_test {
+    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, $expected:expr) => {
         set_in_mode_test!(
             $name,
             into_heart_rate,
             0b10,
             $method,
-            [$arg],
-            SPO2_CONFIG,
+            [$($arg),*],
+            $reg,
             $expected
         );
     };
 }
 
-set_in_mode_test!(
+set_heart_rate_test!(
     enable_new_fifo_data_ready_interrupt,
-    into_heart_rate,
-    0b10,
     enable_new_fifo_data_ready_interrupt,
     [],
     INT_EN1,
     BF::PPG_RDY_INT
 );
-set_in_mode_test!(
+set_heart_rate_test!(
     disable_new_fifo_data_ready_interrupt,
-    into_heart_rate,
-    0b10,
     disable_new_fifo_data_ready_interrupt,
     [],
     INT_EN1,
     0
 );
+
+macro_rules! set_test {
+    ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
+        set_heart_rate_test!($name, $method, [$arg], SPO2_CONFIG, $expected);
+    };
+}
 
 set_test!(can_set_led_pw_69, set_led_pulse_width, LedPw::Pw69, 0);
 set_test!(can_set_led_pw_118, set_led_pulse_width, LedPw::Pw118, 1);

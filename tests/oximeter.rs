@@ -16,38 +16,32 @@ fn can_change_into_oximeter() {
     destroy(dev);
 }
 
-macro_rules! set_test {
-    ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
-        set_in_mode_test!(
-            $name,
-            into_oximeter,
-            0b11,
-            $method,
-            [$arg],
-            SPO2_CONFIG,
-            $expected
-        );
+macro_rules! set_oximeter_test {
+    ($name:ident, $method:ident, [$($arg:expr),*], $reg:ident, $expected:expr) => {
+        set_in_mode_test!($name, into_oximeter, 0b11, $method, [$($arg),*], $reg, $expected);
     };
 }
 
-set_in_mode_test!(
+set_oximeter_test!(
     enable_new_fifo_data_ready_interrupt,
-    into_oximeter,
-    0b11,
     enable_new_fifo_data_ready_interrupt,
     [],
     INT_EN1,
     BF::PPG_RDY_INT
 );
-set_in_mode_test!(
+set_oximeter_test!(
     disable_new_fifo_data_ready_interrupt,
-    into_oximeter,
-    0b11,
     disable_new_fifo_data_ready_interrupt,
     [],
     INT_EN1,
     0
 );
+
+macro_rules! set_test {
+    ($name:ident, $method:ident, $arg:expr, $expected:expr) => {
+        set_oximeter_test!($name, $method, [$arg], SPO2_CONFIG, $expected);
+    };
+}
 
 set_test!(adc_rge_2k, set_adc_range, AdcRge::Fs2k, 0);
 set_test!(adc_rge_4k, set_adc_range, AdcRge::Fs4k, 1 << 5);
