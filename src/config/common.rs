@@ -263,35 +263,43 @@ pub trait ValidateSrPw: private::Sealed {
     fn check<E>(width: LedPulseWidth, rate: SampleRate) -> Result<(), Error<E>>;
 }
 
+fn check_red_only<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+    use LedPulseWidth::*;
+    use SampleRate::*;
+
+    if (sr == Sps3200 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
+        || (sr == Sps1600 && pw == Pw411)
+    {
+        Err(Error::InvalidArguments)
+    } else {
+        Ok(())
+    }
+}
+
+fn check_red_ir<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+    use LedPulseWidth::*;
+    use SampleRate::*;
+
+    if sr == Sps3200
+        || (sr == Sps1600 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
+        || (sr == Sps1000 && (pw == Pw215 || pw == Pw411))
+        || (sr == Sps800 && pw == Pw411)
+    {
+        Err(Error::InvalidArguments)
+    } else {
+        Ok(())
+    }
+}
+
 impl ValidateSrPw for marker::mode::HeartRate {
     fn check<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
-        use LedPulseWidth::*;
-        use SampleRate::*;
-
-        if (sr == Sps3200 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
-            || (sr == Sps1600 && pw == Pw411)
-        {
-            Err(Error::InvalidArguments)
-        } else {
-            Ok(())
-        }
+        check_red_only(pw, sr)
     }
 }
 
 impl ValidateSrPw for marker::mode::Oximeter {
     fn check<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
-        use LedPulseWidth::*;
-        use SampleRate::*;
-
-        if sr == Sps3200
-            || (sr == Sps1600 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
-            || (sr == Sps1000 && (pw == Pw215 || pw == Pw411))
-            || (sr == Sps800 && pw == Pw411)
-        {
-            Err(Error::InvalidArguments)
-        } else {
-            Ok(())
-        }
+        check_red_ir(pw, ir)
     }
 }
 
