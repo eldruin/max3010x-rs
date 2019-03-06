@@ -445,7 +445,7 @@ impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::Oximeter>
 where
     I2C: i2c::Write<Error = E>,
 {
-    /// Configure SpO2 (oximeter) analog-to-digital converter range.
+    /// Configure analog-to-digital converter range.
     pub fn set_adc_range(&mut self, range: SpO2AdcRange) -> Result<(), Error<E>> {
         use SpO2AdcRange::*;
         let new_config = self
@@ -467,9 +467,9 @@ where
 
     high_low_flag_impl!(
         enable_new_fifo_data_ready_interrupt,
-        "Enable new FIFO data ready (PPG_RDY) interrupt",
+        "Enable new FIFO data ready interrupt",
         disable_new_fifo_data_ready_interrupt,
-        "Disable new FIFO data ready (PPG_RDY) interrupt",
+        "Disable new FIFO data ready interrupt",
         INT_EN1,
         int_en1,
         PPG_RDY_INT
