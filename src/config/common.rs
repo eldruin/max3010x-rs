@@ -309,7 +309,7 @@ impl ValidateSrPw for marker::mode::MultiLED {
     }
 }
 
-impl<I2C, E, MODE> Max3010x<I2C, marker::ic::Max30102, MODE>
+impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
     MODE: ValidateSrPw,
