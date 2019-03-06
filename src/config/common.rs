@@ -1,5 +1,5 @@
 //! Device configuration methods.
-use super::{
+use crate::{
     marker, private, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt, Led,
     LedPulseWidth, Max3010x, Register as Reg, SampleAveraging, SampleRate, SpO2AdcRange, TimeSlot,
 };
@@ -299,7 +299,7 @@ impl ValidateSrPw for marker::mode::HeartRate {
 
 impl ValidateSrPw for marker::mode::Oximeter {
     fn check<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
-        check_red_ir(pw, ir)
+        check_red_ir(pw, sr)
     }
 }
 
@@ -478,43 +478,40 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        marker::mode::{HeartRate, Oximeter},
-        LedPulseWidth as LedPw, SampleRate as SR, ValidateSrPw,
-    };
+    use super::{check_red_ir, check_red_only, LedPulseWidth as LedPw, SampleRate as SR};
 
     #[test]
     fn invalid_combinations_oximeter_sample_rate_800_pulse_width_411() {
-        Oximeter::check::<()>(LedPw::Pw411, SR::Sps800).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw411, SR::Sps800).expect_err("Should return error.");
     }
 
     #[test]
     fn invalid_combinations_oximeter_sample_rate_1000_pulse_width() {
-        Oximeter::check::<()>(LedPw::Pw215, SR::Sps1000).expect_err("Should return error.");
-        Oximeter::check::<()>(LedPw::Pw411, SR::Sps1000).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw215, SR::Sps1000).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw411, SR::Sps1000).expect_err("Should return error.");
     }
     #[test]
     fn invalid_combinations_oximeter_sample_rate_1600_pulse_width() {
-        Oximeter::check::<()>(LedPw::Pw118, SR::Sps1600).expect_err("Should return error.");
-        Oximeter::check::<()>(LedPw::Pw215, SR::Sps1600).expect_err("Should return error.");
-        Oximeter::check::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw118, SR::Sps1600).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw215, SR::Sps1600).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
     }
     #[test]
     fn invalid_combinations_oximeter_sample_rate_3200_pulse_width() {
-        Oximeter::check::<()>(LedPw::Pw69, SR::Sps3200).expect_err("Should return error.");
-        Oximeter::check::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
-        Oximeter::check::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
-        Oximeter::check::<()>(LedPw::Pw411, SR::Sps3200).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw69, SR::Sps3200).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
+        check_red_ir::<()>(LedPw::Pw411, SR::Sps3200).expect_err("Should return error.");
     }
 
     #[test]
     fn invalid_combinations_heart_rate_sample_rate_1600_pulse_width_411() {
-        HeartRate::check::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
+        check_red_only::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
     }
     #[test]
     fn invalid_combinations_heart_rate_sample_rate_3200_pulse_width() {
-        HeartRate::check::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
-        HeartRate::check::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
-        HeartRate::check::<()>(LedPw::Pw411, SR::Sps3200).expect_err("Should return error.");
+        check_red_only::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
+        check_red_only::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
+        check_red_only::<()>(LedPw::Pw411, SR::Sps3200).expect_err("Should return error.");
     }
 }
