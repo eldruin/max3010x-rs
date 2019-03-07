@@ -1,7 +1,7 @@
 extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
-use max3010x::{LedPulseWidth as LedPw, SampleRate as SR, SpO2AdcRange as AdcRge};
+use max3010x::{AdcRange, LedPulseWidth as LedPw, SampleRate as SR};
 mod base;
 use base::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
@@ -43,10 +43,10 @@ macro_rules! set_test {
     };
 }
 
-set_test!(adc_rge_2k, set_adc_range, AdcRge::Fs2k, 0);
-set_test!(adc_rge_4k, set_adc_range, AdcRge::Fs4k, 1 << 5);
-set_test!(adc_rge_8k, set_adc_range, AdcRge::Fs8k, 2 << 5);
-set_test!(adc_rge_16k, set_adc_range, AdcRge::Fs16k, 3 << 5);
+set_test!(adc_rge_2k, set_adc_range, AdcRange::Fs2k, 0);
+set_test!(adc_rge_4k, set_adc_range, AdcRange::Fs4k, 1 << 5);
+set_test!(adc_rge_8k, set_adc_range, AdcRange::Fs8k, 2 << 5);
+set_test!(adc_rge_16k, set_adc_range, AdcRange::Fs16k, 3 << 5);
 
 set_test!(can_set_led_pw_69, set_led_pulse_width, LedPw::Pw69, 0);
 set_test!(can_set_led_pw_118, set_led_pulse_width, LedPw::Pw118, 1);
