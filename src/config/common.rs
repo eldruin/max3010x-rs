@@ -432,9 +432,9 @@ where
 {
     high_low_flag_impl!(
         enable_new_fifo_data_ready_interrupt,
-        "Enable new FIFO data ready (PPG_RDY) interrupt",
+        "Enable new FIFO data ready interrupt",
         disable_new_fifo_data_ready_interrupt,
-        "Disable new FIFO data ready (PPG_RDY) interrupt",
+        "Disable new FIFO data ready interrupt",
         INT_EN1,
         int_en1,
         PPG_RDY_INT
