@@ -213,8 +213,8 @@ impl BitFlags {
     const SHUTDOWN: u8 = 0b1000_0000;
     const RESET: u8 = 0b0100_0000;
     const FIFO_ROLLOVER_EN: u8 = 0b0001_0000;
-    const SPO2_ADC_RGE0: u8 = 0b0010_0000;
-    const SPO2_ADC_RGE1: u8 = 0b0100_0000;
+    const ADC_RGE0: u8 = 0b0010_0000;
+    const ADC_RGE1: u8 = 0b0100_0000;
     const LED_PW0: u8 = 0b0000_0001;
     const LED_PW1: u8 = 0b0000_0010;
     const SPO2_SR0: u8 = 0b0000_0100;

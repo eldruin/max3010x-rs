@@ -450,15 +450,13 @@ where
         use SpO2AdcRange::*;
         let new_config = self
             .spo2_config
-            .with_low(BF::SPO2_ADC_RGE0)
-            .with_low(BF::SPO2_ADC_RGE1);
+            .with_low(BF::ADC_RGE0)
+            .with_low(BF::ADC_RGE1);
         let new_config = match range {
             Fs2k => new_config,
-            Fs4k => new_config.with_high(BF::SPO2_ADC_RGE0),
-            Fs8k => new_config.with_high(BF::SPO2_ADC_RGE1),
-            Fs16k => new_config
-                .with_high(BF::SPO2_ADC_RGE0)
-                .with_high(BF::SPO2_ADC_RGE1),
+            Fs4k => new_config.with_high(BF::ADC_RGE0),
+            Fs8k => new_config.with_high(BF::ADC_RGE1),
+            Fs16k => new_config.with_high(BF::ADC_RGE0).with_high(BF::ADC_RGE1),
         };
         self.write_data(&[Reg::SPO2_CONFIG, new_config.bits])?;
         self.spo2_config = new_config;
