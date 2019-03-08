@@ -11,7 +11,30 @@ pulse oximeter and heart-rate sensor for wearable health, based on the
 [`embedded-hal`](https://github.com/rust-embedded/embedded-hal) traits.
 
 This driver allows you to:
-- TODO
+- Get the number of samples available on the FIFO. See `get_available_sample_count()`.
+- Get the number of samples lost from the FIFO. See `get_overflow_sample_count()`.
+- Read samples from the FIFO. See `read_fifo()`.
+- Perform a temperature measurement. See `read_temperature()`.
+- Change into heart-rate, oximeter or multi-LED modes. See `into_multi_led()`.
+- Set the sample averaging. See `set_sample_averaging()`.
+- Set the LED pulse amplitude. See `set_pulse_amplitude()`.
+- Set the LED pulse width. See `set_pulse_width()`.
+- Set the sampling rate. See `set_sampling_rate()`.
+- Set the ADC range. See `set_adc_range()`.
+- Set the LED time slots in multi-LED mode. `set_led_time_slots()`.
+- Enable/disable the FIFO rollover. See `enable_fifo_rollover()`.
+- Clear the FIFO. See `clear_fifo()`.
+- Wake-up and shutdown the device. See `shutdown()`.
+- Perform a software reset. See `reset()`.
+- Get the device part and revision id. See `get_part_id()`.
+- Interrupts:
+  - Read the status of all interrupts. See `read_interrupt_status()`.
+  - Set FIFO-almost-full level interrupt. See `set_fifo_almost_full_level_interrupt()`.
+  - Enable/disable the FIFO-almost-full interrupt. See `enable_fifo_almost_full_interrupt()`.
+  - Enable/disable the ambient-light-cancellation overflow interrupt. See `enable_alc_overflow_interrupt()`.
+  - Enable/disable the temperature-ready interrupt. See `enable_temperature_ready_interrupt()`.
+  - Enable/disable the new-FIFO-data-ready interrupt. See `enable_new_fifo_data_ready_interrupt()`.
+
 
 ## The device
 TODO

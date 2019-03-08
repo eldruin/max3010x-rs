@@ -5,7 +5,53 @@
 //! [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 //!
 //! This driver allows you to:
-//! - TODO
+//! - Get the number of samples available on the FIFO. See [`get_available_sample_count()`].
+//! - Get the number of samples lost from the FIFO. See [`get_overflow_sample_count()`].
+//! - Read samples from the FIFO. See [`read_fifo()`].
+//! - Perform a temperature measurement. See [`read_temperature()`].
+//! - Change into heart-rate, oximeter or multi-LED modes. See [`into_multi_led()`].
+//! - Set the sample averaging. See [`set_sample_averaging()`].
+//! - Set the LED pulse amplitude. See [`set_pulse_amplitude()`].
+//! - Set the LED pulse width. See [`set_pulse_width()`].
+//! - Set the sampling rate. See [`set_sampling_rate()`].
+//! - Set the ADC range. See [`set_adc_range()`].
+//! - Set the LED time slots in multi-LED mode. [`set_led_time_slots()`].
+//! - Enable/disable the FIFO rollover. See [`enable_fifo_rollover()`].
+//! - Clear the FIFO. See [`clear_fifo()`].
+//! - Wake-up and shutdown the device. See [`shutdown()`].
+//! - Perform a software reset. See [`reset()`].
+//! - Get the device part and revision id. See [`get_part_id()`].
+//! - Interrupts:
+//!   - Read the status of all interrupts. See [`read_interrupt_status()`].
+//!   - Set FIFO-almost-full level interrupt. See [`set_fifo_almost_full_level_interrupt()`].
+//!   - Enable/disable the FIFO-almost-full interrupt. See [`enable_fifo_almost_full_interrupt()`].
+//!   - Enable/disable the ambient-light-cancellation overflow interrupt. See [`enable_alc_overflow_interrupt()`].
+//!   - Enable/disable the temperature-ready interrupt. See [`enable_temperature_ready_interrupt()`].
+//!   - Enable/disable the new-FIFO-data-ready interrupt. See [`enable_new_fifo_data_ready_interrupt()`].
+//!
+//!
+//! [`get_available_sample_count()`]: struct.Max3010x.html#method.get_available_sample_count
+//! [`get_overflow_sample_count()`]: struct.Max3010x.html#method.get_overflow_sample_count
+//! [`read_fifo()`]: struct.Max3010x.html#method.read_fifo
+//! [`read_temperature()`]: struct.Max3010x.html#method.read_temperature
+//! [`into_multi_led()`]: struct.Max3010x.html#method.into_multi_led
+//! [`set_sample_averaging()`]: struct.Max3010x.html#method.set_sample_averaging
+//! [`set_pulse_width()`]: struct.Max3010x.html#method.set_pulse_width
+//! [`set_pulse_amplitude()`]: struct.Max3010x.html#method.set_pulse_amplitude
+//! [`set_sampling_rate()`]: struct.Max3010x.html#method.set_sampling_rate
+//! [`set_adc_range()`]: struct.Max3010x.html#method.set_adc_range
+//! [`set_led_time_slots()`]: struct.Max3010x.html#method.set_led_time_slots
+//! [`shutdown()`]: struct.Max3010x.html#method.shutdown
+//! [`reset()`]: struct.Max3010x.html#method.reset
+//! [`set_fifo_almost_full_level_interrupt()`]: struct.Max3010x.html#method.set_fifo_almost_full_level_interrupt
+//! [`enable_fifo_rollover()`]: struct.Max3010x.html#method.enable_fifo_rollover
+//! [`clear_fifo()`]: struct.Max3010x.html#method.clear_fifo
+//! [`read_interrupt_status()`]: struct.Max3010x.html#method.read_interrupt_status
+//! [`enable_fifo_almost_full_interrupt()`]: struct.Max3010x.html#method.enable_fifo_almost_full_interrupt
+//! [`enable_alc_overflow_interrupt()`]: struct.Max3010x.html#method.enable_alc_overflow_interrupt
+//! [`enable_temperature_ready_interrupt()`]: struct.Max3010x.html#method.enable_temperature_ready_interrupt
+//! [`enable_new_fifo_data_ready_interrupt()`]: struct.Max3010x.html#method.enable_new_fifo_data_ready_interrupt
+//! [`get_part_id()`]: struct.Max3010x.html#method.get_part_id
 //!
 //! ## The device
 //! TODO
