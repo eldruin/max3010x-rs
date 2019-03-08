@@ -1,7 +1,7 @@
 //! Common device configuration methods.
 use crate::{
     marker, private, AdcRange, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt,
-    LedPulseWidth, Max3010x, Register as Reg, SampleAveraging, SampleRate,
+    LedPulseWidth, Max3010x, Register as Reg, SampleAveraging, SamplingRate,
 };
 use hal::blocking::i2c;
 
@@ -173,12 +173,12 @@ where
 #[doc(hidden)]
 pub trait ValidateSrPw: private::Sealed {
     /// Check the pulse width and sample rate combination
-    fn check<E>(width: LedPulseWidth, rate: SampleRate) -> Result<(), Error<E>>;
+    fn check<E>(width: LedPulseWidth, rate: SamplingRate) -> Result<(), Error<E>>;
 }
 
-fn check_red_only<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+fn check_red_only<E>(pw: LedPulseWidth, sr: SamplingRate) -> Result<(), Error<E>> {
     use LedPulseWidth::*;
-    use SampleRate::*;
+    use SamplingRate::*;
 
     if (sr == Sps3200 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
         || (sr == Sps1600 && pw == Pw411)
@@ -189,9 +189,9 @@ fn check_red_only<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> 
     }
 }
 
-fn check_red_ir<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+fn check_red_ir<E>(pw: LedPulseWidth, sr: SamplingRate) -> Result<(), Error<E>> {
     use LedPulseWidth::*;
-    use SampleRate::*;
+    use SamplingRate::*;
 
     if sr == Sps3200
         || (sr == Sps1600 && (pw == Pw118 || pw == Pw215 || pw == Pw411))
@@ -205,19 +205,19 @@ fn check_red_ir<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
 }
 
 impl ValidateSrPw for marker::mode::HeartRate {
-    fn check<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+    fn check<E>(pw: LedPulseWidth, sr: SamplingRate) -> Result<(), Error<E>> {
         check_red_only(pw, sr)
     }
 }
 
 impl ValidateSrPw for marker::mode::Oximeter {
-    fn check<E>(pw: LedPulseWidth, sr: SampleRate) -> Result<(), Error<E>> {
+    fn check<E>(pw: LedPulseWidth, sr: SamplingRate) -> Result<(), Error<E>> {
         check_red_ir(pw, sr)
     }
 }
 
 impl ValidateSrPw for marker::mode::MultiLED {
-    fn check<E>(_width: LedPulseWidth, _rate: SampleRate) -> Result<(), Error<E>> {
+    fn check<E>(_width: LedPulseWidth, _rate: SamplingRate) -> Result<(), Error<E>> {
         Ok(())
     }
 }
@@ -232,7 +232,7 @@ where
     /// This determines the ADC resolution.
     pub fn set_pulse_width(&mut self, width: LedPulseWidth) -> Result<(), Error<E>> {
         use LedPulseWidth::*;
-        MODE::check::<E>(width, self.get_sample_rate())?;
+        MODE::check::<E>(width, self.get_sampling_rate())?;
         let config = self.spo2_config.with_low(BF::LED_PW0).with_low(BF::LED_PW1);
         let config = match width {
             Pw69 => config,
@@ -249,15 +249,15 @@ where
     ///
     /// This depends on the LED pulse width. Calling this with an inappropriate
     /// value for the selected pulse with will return `Error::InvalidArgument`
-    pub fn set_sample_rate(&mut self, sample_rate: SampleRate) -> Result<(), Error<E>> {
-        use SampleRate::*;
-        MODE::check::<E>(self.get_pulse_width(), sample_rate)?;
+    pub fn set_sampling_rate(&mut self, sampling_rate: SamplingRate) -> Result<(), Error<E>> {
+        use SamplingRate::*;
+        MODE::check::<E>(self.get_pulse_width(), sampling_rate)?;
         let config = self
             .spo2_config
             .with_low(BF::SPO2_SR0)
             .with_low(BF::SPO2_SR1)
             .with_low(BF::SPO2_SR2);
-        let config = match sample_rate {
+        let config = match sampling_rate {
             Sps50 => config,
             Sps100 => config.with_high(BF::SPO2_SR0),
             Sps200 => config.with_high(BF::SPO2_SR1),
@@ -323,26 +323,26 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{check_red_ir, check_red_only, LedPulseWidth as LedPw, SampleRate as SR};
+    use super::{check_red_ir, check_red_only, LedPulseWidth as LedPw, SamplingRate as SR};
 
     #[test]
-    fn invalid_combinations_oximeter_sample_rate_800_pulse_width_411() {
+    fn invalid_combinations_oximeter_sampling_rate_800_pulse_width_411() {
         check_red_ir::<()>(LedPw::Pw411, SR::Sps800).expect_err("Should return error.");
     }
 
     #[test]
-    fn invalid_combinations_oximeter_sample_rate_1000_pulse_width() {
+    fn invalid_combinations_oximeter_sampling_rate_1000_pulse_width() {
         check_red_ir::<()>(LedPw::Pw215, SR::Sps1000).expect_err("Should return error.");
         check_red_ir::<()>(LedPw::Pw411, SR::Sps1000).expect_err("Should return error.");
     }
     #[test]
-    fn invalid_combinations_oximeter_sample_rate_1600_pulse_width() {
+    fn invalid_combinations_oximeter_sampling_rate_1600_pulse_width() {
         check_red_ir::<()>(LedPw::Pw118, SR::Sps1600).expect_err("Should return error.");
         check_red_ir::<()>(LedPw::Pw215, SR::Sps1600).expect_err("Should return error.");
         check_red_ir::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
     }
     #[test]
-    fn invalid_combinations_oximeter_sample_rate_3200_pulse_width() {
+    fn invalid_combinations_oximeter_sampling_rate_3200_pulse_width() {
         check_red_ir::<()>(LedPw::Pw69, SR::Sps3200).expect_err("Should return error.");
         check_red_ir::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
         check_red_ir::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
@@ -350,11 +350,11 @@ mod tests {
     }
 
     #[test]
-    fn invalid_combinations_heart_rate_sample_rate_1600_pulse_width_411() {
+    fn invalid_combinations_heart_rate_sampling_rate_1600_pulse_width_411() {
         check_red_only::<()>(LedPw::Pw411, SR::Sps1600).expect_err("Should return error.");
     }
     #[test]
-    fn invalid_combinations_heart_rate_sample_rate_3200_pulse_width() {
+    fn invalid_combinations_heart_rate_sampling_rate_3200_pulse_width() {
         check_red_only::<()>(LedPw::Pw118, SR::Sps3200).expect_err("Should return error.");
         check_red_only::<()>(LedPw::Pw215, SR::Sps3200).expect_err("Should return error.");
         check_red_only::<()>(LedPw::Pw411, SR::Sps3200).expect_err("Should return error.");

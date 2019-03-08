@@ -128,11 +128,11 @@ pub enum LedPulseWidth {
     Pw411,
 }
 
-/// Sample rate
+/// Sampling rate
 ///
 /// This is limited by the current mode and the selected LED pulse width.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum SampleRate {
+pub enum SamplingRate {
     /// 50 samples per second
     Sps50,
     /// 100 samples per second

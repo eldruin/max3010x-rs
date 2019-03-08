@@ -2,7 +2,7 @@
 
 use super::{
     marker, private, BitFlags, Error, InterruptStatus, LedPulseWidth, Max3010x, Register,
-    SampleRate, DEVICE_ADDRESS,
+    SamplingRate, DEVICE_ADDRESS,
 };
 use hal::blocking::i2c;
 
@@ -193,19 +193,19 @@ impl<I2C, IC, MODE> Max3010x<I2C, IC, MODE> {
         }
     }
 
-    pub(crate) fn get_sample_rate(&self) -> SampleRate {
+    pub(crate) fn get_sampling_rate(&self) -> SamplingRate {
         let sr_bits = (self.spo2_config.bits
             & (BitFlags::SPO2_SR0 | BitFlags::SPO2_SR1 | BitFlags::SPO2_SR2))
             >> 2;
         match sr_bits {
-            0 => SampleRate::Sps50,
-            1 => SampleRate::Sps100,
-            2 => SampleRate::Sps200,
-            3 => SampleRate::Sps400,
-            4 => SampleRate::Sps800,
-            5 => SampleRate::Sps1000,
-            6 => SampleRate::Sps1600,
-            7 => SampleRate::Sps3200,
+            0 => SamplingRate::Sps50,
+            1 => SamplingRate::Sps100,
+            2 => SamplingRate::Sps200,
+            3 => SamplingRate::Sps400,
+            4 => SamplingRate::Sps800,
+            5 => SamplingRate::Sps1000,
+            6 => SamplingRate::Sps1600,
+            7 => SamplingRate::Sps3200,
             _ => unreachable!(),
         }
     }
