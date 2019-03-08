@@ -165,7 +165,7 @@ pub enum AdcRange {
 }
 
 /// Interrupt status flags
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct InterruptStatus {
     /// Power ready interrupt
     pub power_ready: bool,
