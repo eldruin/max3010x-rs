@@ -122,7 +122,7 @@ fn read_fifo_samples_1channel(pulse_width: LedPulseWidth, spo2_config: u8, shift
 
     let mut data = [0; 2];
     let mut dev = dev.into_heart_rate().unwrap();
-    dev.set_led_pulse_width(pulse_width).unwrap();
+    dev.set_pulse_width(pulse_width).unwrap();
     let result = dev.read_fifo(&mut data).unwrap();
     assert_eq!(2, result);
     assert_eq!([1 << 16 | 2 << 8 | 3, 4 << 16 | 5 << 8 | 6], data);
@@ -172,7 +172,7 @@ fn read_fifo_samples_2channels(pulse_width: LedPulseWidth, spo2_config: u8, shif
 
     let mut data = [0; 2];
     let mut dev = dev.into_oximeter().unwrap();
-    dev.set_led_pulse_width(pulse_width).unwrap();
+    dev.set_pulse_width(pulse_width).unwrap();
     let result = dev.read_fifo(&mut data).unwrap();
     assert_eq!(1, result);
     assert_eq!([1 << 16 | 2 << 8 | 3, 4 << 16 | 5 << 8 | 6], data);

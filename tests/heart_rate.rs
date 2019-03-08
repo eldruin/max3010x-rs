@@ -52,10 +52,10 @@ macro_rules! set_test {
     };
 }
 
-set_test!(can_set_led_pw_69, set_led_pulse_width, LedPw::Pw69, 0);
-set_test!(can_set_led_pw_118, set_led_pulse_width, LedPw::Pw118, 1);
-set_test!(can_set_led_pw_215, set_led_pulse_width, LedPw::Pw215, 2);
-set_test!(can_set_led_pw_411, set_led_pulse_width, LedPw::Pw411, 3);
+set_test!(can_set_pw_69, set_pulse_width, LedPw::Pw69, 0);
+set_test!(can_set_pw_118, set_pulse_width, LedPw::Pw118, 1);
+set_test!(can_set_pw_215, set_pulse_width, LedPw::Pw215, 2);
+set_test!(can_set_pw_411, set_pulse_width, LedPw::Pw411, 3);
 
 set_test!(can_set_sr_50, set_sample_rate, SR::Sps50, 0);
 set_test!(can_set_sr_100, set_sample_rate, SR::Sps100, 1 << 2);

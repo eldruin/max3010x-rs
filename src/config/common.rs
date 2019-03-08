@@ -230,7 +230,7 @@ where
     /// Configure the LED pulse width.
     ///
     /// This determines the ADC resolution.
-    pub fn set_led_pulse_width(&mut self, width: LedPulseWidth) -> Result<(), Error<E>> {
+    pub fn set_pulse_width(&mut self, width: LedPulseWidth) -> Result<(), Error<E>> {
         use LedPulseWidth::*;
         MODE::check::<E>(width, self.get_sample_rate())?;
         let config = self.spo2_config.with_low(BF::LED_PW0).with_low(BF::LED_PW1);
