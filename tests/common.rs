@@ -84,21 +84,6 @@ write_test!(can_reset, reset, [], MODE, [BF::RESET]);
 write_test!(can_clear_fifo, clear_fifo, [], FIFO_WR_PTR, [0, 0, 0]);
 
 #[test]
-fn read_fifo_too_short_input_returns0() {
-    let transactions = [
-        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
-        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
-    ];
-    let dev = new(&transactions);
-
-    let mut data = [0; 2];
-    let mut dev = dev.into_heart_rate().unwrap();
-    let result = dev.read_fifo(&mut data).unwrap();
-    assert_eq!(0, result);
-    destroy(dev);
-}
-
-#[test]
 fn read_fifo_no_data_returns0() {
     let transactions = [
         I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
@@ -115,7 +100,7 @@ fn read_fifo_no_data_returns0() {
 }
 
 #[test]
-fn read_fifo_read_samples() {
+fn read_fifo_read_samples_1channel() {
     let transactions = [
         I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
         I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
@@ -124,11 +109,29 @@ fn read_fifo_read_samples() {
     ];
     let dev = new(&transactions);
 
-    let mut data = [0; 6];
+    let mut data = [0; 2];
     let mut dev = dev.into_heart_rate().unwrap();
     let result = dev.read_fifo(&mut data).unwrap();
     assert_eq!(2, result);
-    assert_eq!([1, 2, 3, 4, 5, 6], data);
+    assert_eq!([1 << 16 | 2 << 8 | 3, 4 << 16 | 5 << 8 | 6], data);
+    destroy(dev);
+}
+
+#[test]
+fn read_fifo_read_samples_2channels() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b11]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_WR_PTR], vec![2, 0, 0]),
+        I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_DATA], vec![1, 2, 3, 4, 5, 6]),
+    ];
+    let dev = new(&transactions);
+
+    let mut data = [0; 2];
+    let mut dev = dev.into_oximeter().unwrap();
+    let result = dev.read_fifo(&mut data).unwrap();
+    assert_eq!(1, result);
+    assert_eq!([1 << 16 | 2 << 8 | 3, 4 << 16 | 5 << 8 | 6], data);
     destroy(dev);
 }
 
