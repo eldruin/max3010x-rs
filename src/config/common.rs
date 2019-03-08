@@ -227,32 +227,6 @@ where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
     MODE: ValidateSrPw,
 {
-    fn get_pulse_width(&self) -> LedPulseWidth {
-        let pw_bits = self.spo2_config.bits & (BF::LED_PW0 | BF::LED_PW1);
-        match pw_bits {
-            0 => LedPulseWidth::Pw69,
-            1 => LedPulseWidth::Pw118,
-            2 => LedPulseWidth::Pw215,
-            3 => LedPulseWidth::Pw411,
-            _ => unreachable!(),
-        }
-    }
-
-    fn get_sample_rate(&self) -> SampleRate {
-        let sr_bits = (self.spo2_config.bits & (BF::SPO2_SR0 | BF::SPO2_SR1 | BF::SPO2_SR2)) >> 2;
-        match sr_bits {
-            0 => SampleRate::Sps50,
-            1 => SampleRate::Sps100,
-            2 => SampleRate::Sps200,
-            3 => SampleRate::Sps400,
-            4 => SampleRate::Sps800,
-            5 => SampleRate::Sps1000,
-            6 => SampleRate::Sps1600,
-            7 => SampleRate::Sps3200,
-            _ => unreachable!(),
-        }
-    }
-
     /// Configure the LED pulse width.
     ///
     /// This determines the ADC resolution.

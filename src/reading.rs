@@ -1,7 +1,8 @@
 //! Reading data method implementation.
 
 use super::{
-    marker, private, BitFlags, Error, InterruptStatus, Max3010x, Register, DEVICE_ADDRESS,
+    marker, private, BitFlags, Error, InterruptStatus, LedPulseWidth, Max3010x, Register,
+    SampleRate, DEVICE_ADDRESS,
 };
 use hal::blocking::i2c;
 
@@ -156,5 +157,35 @@ where
             }
         }
         Ok(sample_count as u8) // the maximum is 32 so this is ok
+    }
+}
+
+impl<I2C, IC, MODE> Max3010x<I2C, IC, MODE> {
+    pub(crate) fn get_pulse_width(&self) -> LedPulseWidth {
+        let pw_bits = self.spo2_config.bits & (BitFlags::LED_PW0 | BitFlags::LED_PW1);
+        match pw_bits {
+            0 => LedPulseWidth::Pw69,
+            1 => LedPulseWidth::Pw118,
+            2 => LedPulseWidth::Pw215,
+            3 => LedPulseWidth::Pw411,
+            _ => unreachable!(),
+        }
+    }
+
+    pub(crate) fn get_sample_rate(&self) -> SampleRate {
+        let sr_bits = (self.spo2_config.bits
+            & (BitFlags::SPO2_SR0 | BitFlags::SPO2_SR1 | BitFlags::SPO2_SR2))
+            >> 2;
+        match sr_bits {
+            0 => SampleRate::Sps50,
+            1 => SampleRate::Sps100,
+            2 => SampleRate::Sps200,
+            3 => SampleRate::Sps400,
+            4 => SampleRate::Sps800,
+            5 => SampleRate::Sps1000,
+            6 => SampleRate::Sps1600,
+            7 => SampleRate::Sps3200,
+            _ => unreachable!(),
+        }
     }
 }
