@@ -121,16 +121,16 @@ where
 {
     /// Reads samples from FIFO.
     ///
-    /// Reads data from the FIFO until all the available samples
-    /// are read or the input buffer is full.
+    /// Reads data from the FIFO until all the available samples are read or
+    /// the input buffer is full.
     ///
     /// Returns the number of _samples_ read.
     ///
-    /// The input buffer must contain one element per channel per sample.
+    /// The output buffer must contain one element per channel per sample.
+    ///
+    /// Note: This method takes care of shifting the data according to the
+    /// ADC resolution.
     pub fn read_fifo(&mut self, output_data: &mut [u32]) -> Result<u8, Error<E>> {
-        const BYTES_PER_SAMPLE: usize = 3;
-        const MAX_CHANNEL_COUNT: usize = 2; // for max30102
-        const FIFO_SAMPLE_SIZE: usize = 32;
         let mode_channels = usize::from(MODE::CHANNEL_COUNT);
 
         if output_data.len() < mode_channels {
@@ -140,23 +140,44 @@ where
         let samples_fitting_in_input = output_data.len() / mode_channels;
         let sample_count = core::cmp::min(usize::from(samples), samples_fitting_in_input);
         if sample_count != 0 {
-            let byte_count = sample_count * mode_channels * BYTES_PER_SAMPLE;
-            // maximum size (could be optimized by using mode_channels but this needs https://github.com/rust-lang/rust/issues/42863)
-            let mut data = [0; FIFO_SAMPLE_SIZE * MAX_CHANNEL_COUNT * BYTES_PER_SAMPLE];
-            self.read_data(Register::FIFO_DATA, &mut data[..byte_count])?;
-            for (i, output_item) in output_data
-                .iter_mut()
-                .enumerate()
-                .take(sample_count * mode_channels)
-            {
-                // TODO shift right according to ADC resolution
-                let sample_index = i * BYTES_PER_SAMPLE;
-                *output_item = u32::from(data[sample_index]) << 16
-                    | u32::from(data[sample_index + 1]) << 8
-                    | u32::from(data[sample_index + 2]);
-            }
+            self.read_samples(sample_count, output_data)?;
         }
         Ok(sample_count as u8) // the maximum is 32 so this is ok
+    }
+
+    fn read_samples(&mut self, sample_count: usize, output: &mut [u32]) -> Result<(), Error<E>> {
+        const BYTES_PER_SAMPLE: usize = 3;
+        const MAX_CHANNEL_COUNT: usize = 2; // for max30102
+        const FIFO_SAMPLE_SIZE: usize = 32;
+
+        let mode_channels = usize::from(MODE::CHANNEL_COUNT);
+        let sample_shift = self.get_sample_shift();
+        let byte_count = sample_count * mode_channels * BYTES_PER_SAMPLE;
+        // maximum size (could be optimized by using mode_channels but this
+        // needs https://github.com/rust-lang/rust/issues/42863)
+        let mut data = [0; FIFO_SAMPLE_SIZE * MAX_CHANNEL_COUNT * BYTES_PER_SAMPLE];
+        self.read_data(Register::FIFO_DATA, &mut data[..byte_count])?;
+        for (out_idx, out_item) in output
+            .iter_mut()
+            .enumerate()
+            .take(sample_count * mode_channels)
+        {
+            let sample_idx = out_idx * BYTES_PER_SAMPLE;
+            *out_item = (u32::from(data[sample_idx]) << 16
+                | u32::from(data[sample_idx + 1]) << 8
+                | u32::from(data[sample_idx + 2]))
+                >> sample_shift;
+        }
+        Ok(())
+    }
+
+    fn get_sample_shift(&self) -> usize {
+        match self.get_pulse_width() {
+            LedPulseWidth::Pw69 => 3,
+            LedPulseWidth::Pw118 => 2,
+            LedPulseWidth::Pw215 => 1,
+            LedPulseWidth::Pw411 => 0,
+        }
     }
 }
 

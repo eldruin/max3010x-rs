@@ -2,7 +2,7 @@ extern crate embedded_hal_mock as hal;
 use hal::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 extern crate nb;
-use max3010x::{FifoAlmostFullLevelInterrupt, Led, SampleAveraging};
+use max3010x::{FifoAlmostFullLevelInterrupt, Led, LedPulseWidth, SampleAveraging};
 mod base;
 use base::{destroy, new, BitFlags as BF, Register as Reg, DEV_ADDR};
 
@@ -99,18 +99,30 @@ fn read_fifo_no_data_returns0() {
     destroy(dev);
 }
 
-#[test]
-fn read_fifo_read_samples_1channel() {
+fn read_fifo_samples_1channel(pulse_width: LedPulseWidth, spo2_config: u8, shift: usize) {
     let transactions = [
         I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
         I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::SPO2_CONFIG, spo2_config]),
         I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_WR_PTR], vec![2, 0, 0]),
-        I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_DATA], vec![1, 2, 3, 4, 5, 6]),
+        I2cTrans::write_read(
+            DEV_ADDR,
+            vec![Reg::FIFO_DATA],
+            vec![
+                1 << shift,
+                2 << shift,
+                3 << shift,
+                4 << shift,
+                5 << shift,
+                6 << shift,
+            ],
+        ),
     ];
     let dev = new(&transactions);
 
     let mut data = [0; 2];
     let mut dev = dev.into_heart_rate().unwrap();
+    dev.set_led_pulse_width(pulse_width).unwrap();
     let result = dev.read_fifo(&mut data).unwrap();
     assert_eq!(2, result);
     assert_eq!([1 << 16 | 2 << 8 | 3, 4 << 16 | 5 << 8 | 6], data);
@@ -118,21 +130,73 @@ fn read_fifo_read_samples_1channel() {
 }
 
 #[test]
-fn read_fifo_read_samples_2channels() {
+fn read_fifo_samples_1channel_pw69() {
+    read_fifo_samples_1channel(LedPulseWidth::Pw69, 0, 3);
+}
+
+#[test]
+fn read_fifo_samples_1channel_pw118() {
+    read_fifo_samples_1channel(LedPulseWidth::Pw118, 1, 2);
+}
+
+#[test]
+fn read_fifo_samples_1channel_pw215() {
+    read_fifo_samples_1channel(LedPulseWidth::Pw215, 2, 1);
+}
+
+#[test]
+fn read_fifo_samples_1channel_pw411() {
+    read_fifo_samples_1channel(LedPulseWidth::Pw411, 3, 0);
+}
+
+fn read_fifo_samples_2channels(pulse_width: LedPulseWidth, spo2_config: u8, shift: usize) {
     let transactions = [
         I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b11]),
         I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::SPO2_CONFIG, spo2_config]),
         I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_WR_PTR], vec![2, 0, 0]),
-        I2cTrans::write_read(DEV_ADDR, vec![Reg::FIFO_DATA], vec![1, 2, 3, 4, 5, 6]),
+        I2cTrans::write_read(
+            DEV_ADDR,
+            vec![Reg::FIFO_DATA],
+            vec![
+                1 << shift,
+                2 << shift,
+                3 << shift,
+                4 << shift,
+                5 << shift,
+                6 << shift,
+            ],
+        ),
     ];
     let dev = new(&transactions);
 
     let mut data = [0; 2];
     let mut dev = dev.into_oximeter().unwrap();
+    dev.set_led_pulse_width(pulse_width).unwrap();
     let result = dev.read_fifo(&mut data).unwrap();
     assert_eq!(1, result);
     assert_eq!([1 << 16 | 2 << 8 | 3, 4 << 16 | 5 << 8 | 6], data);
     destroy(dev);
+}
+
+#[test]
+fn read_fifo_samples_2channels_pw69() {
+    read_fifo_samples_2channels(LedPulseWidth::Pw69, 0, 3);
+}
+
+#[test]
+fn read_fifo_samples_2channels_pw118() {
+    read_fifo_samples_2channels(LedPulseWidth::Pw118, 1, 2);
+}
+
+#[test]
+fn read_fifo_samples_2channels_pw215() {
+    read_fifo_samples_2channels(LedPulseWidth::Pw215, 2, 1);
+}
+
+#[test]
+fn read_fifo_samples_2channels_pw411() {
+    read_fifo_samples_2channels(LedPulseWidth::Pw411, 3, 0);
 }
 
 mod set_pulse_amplitude {
