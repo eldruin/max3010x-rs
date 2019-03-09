@@ -82,6 +82,12 @@ fn main() {
 }
 ```
 
+## Status
+
+- [x] Compatibility with MAX30102
+- [ ] Compatibility with MAX30101
+- [ ] Compatibility with MAX30105
+
 ## Support
 
 For questions, issues, feature requests, and other changes, please file an
