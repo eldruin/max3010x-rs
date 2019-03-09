@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## 0.1.0 - 2019-03-10
 
-This is the initial release to crates.io of the feature-complete driver. There
-may be some API changes in the future, in case I decide that something can be
-further improved. All changes will be documented in this CHANGELOG.
+This is the initial release of the driver to crates.io. All changes will
+be documented in this CHANGELOG.
 
 [Unreleased]: https://github.com/eldruin/max3010x-rs/compare/v0.1.0...HEAD
