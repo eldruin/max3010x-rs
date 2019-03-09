@@ -99,6 +99,21 @@ fn read_fifo_no_data_returns0() {
     destroy(dev);
 }
 
+#[test]
+fn read_fifo_not_enough_input_data_returns0() {
+    let transactions = [
+        I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b011]),
+        I2cTrans::write(DEV_ADDR, vec![Reg::FIFO_WR_PTR, 0, 0, 0]),
+    ];
+    let dev = new(&transactions);
+
+    let mut dev = dev.into_oximeter().unwrap();
+    let mut data = [0; 1];
+    let result = dev.read_fifo(&mut data).unwrap();
+    assert_eq!(0, result);
+    destroy(dev);
+}
+
 fn read_fifo_samples_1channel(pulse_width: LedPulseWidth, spo2_config: u8, shift: usize) {
     let transactions = [
         I2cTrans::write(DEV_ADDR, vec![Reg::MODE, 0b010]),
