@@ -103,20 +103,23 @@ impl<I2C, IC, MODE> Max3010x<I2C, IC, MODE> {
     }
 
     pub(crate) fn get_sampling_rate(&self) -> SamplingRate {
-        let sr_bits = (self.spo2_config.bits
-            & (BitFlags::SPO2_SR0 | BitFlags::SPO2_SR1 | BitFlags::SPO2_SR2))
-            >> 2;
-        match sr_bits {
-            0 => SamplingRate::Sps50,
-            1 => SamplingRate::Sps100,
-            2 => SamplingRate::Sps200,
-            3 => SamplingRate::Sps400,
-            4 => SamplingRate::Sps800,
-            5 => SamplingRate::Sps1000,
-            6 => SamplingRate::Sps1600,
-            7 => SamplingRate::Sps3200,
-            _ => unreachable!(),
-        }
+        convert_sampling_rate(self.spo2_config.bits)
+    }
+}
+
+fn convert_sampling_rate(spo2_config: u8) -> SamplingRate {
+    let sr_bits =
+        (spo2_config & (BitFlags::SPO2_SR0 | BitFlags::SPO2_SR1 | BitFlags::SPO2_SR2)) >> 2;
+    match sr_bits {
+        0 => SamplingRate::Sps50,
+        1 => SamplingRate::Sps100,
+        2 => SamplingRate::Sps200,
+        3 => SamplingRate::Sps400,
+        4 => SamplingRate::Sps800,
+        5 => SamplingRate::Sps1000,
+        6 => SamplingRate::Sps1600,
+        7 => SamplingRate::Sps3200,
+        _ => unreachable!(),
     }
 }
 
@@ -209,4 +212,28 @@ where
             .write_read(DEVICE_ADDRESS, &[register], data)
             .map_err(Error::I2C)
     }
+}
+
+#[cfg(test)]
+mod convert_sampling_rate_tests {
+    use super::{convert_sampling_rate, SamplingRate};
+    macro_rules! convert_sampling_rate_test {
+        ($name:ident, $bits:expr, $rate:ident) => {
+            #[test]
+            fn $name() {
+                let rate = convert_sampling_rate($bits);
+                assert_eq!(SamplingRate::$rate, rate);
+            }
+        };
+    }
+
+    convert_sampling_rate_test!(sps50, 0 << 2, Sps50);
+    convert_sampling_rate_test!(sps100, 1 << 2, Sps100);
+    convert_sampling_rate_test!(sps200, 2 << 2, Sps200);
+    convert_sampling_rate_test!(sps400, 3 << 2, Sps400);
+    convert_sampling_rate_test!(sps800, 4 << 2, Sps800);
+    convert_sampling_rate_test!(sps1000, 5 << 2, Sps1000);
+    convert_sampling_rate_test!(sps1600, 6 << 2, Sps1600);
+    convert_sampling_rate_test!(sps3200, 7 << 2, Sps3200);
+    convert_sampling_rate_test!(other_bits_are_ignored, 0b1110_0011, Sps50);
 }
