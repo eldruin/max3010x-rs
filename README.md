@@ -61,7 +61,25 @@ Please find additional examples using hardware in this repository: [driver-examp
 [driver-examples]: https://github.com/eldruin/driver-examples
 
 ```rust
-// TODO
+extern crate linux_embedded_hal as hal;
+extern crate max3010x;
+use max3010x::{Max3010x, Led, SampleAveraging};
+
+fn main() {
+  let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+
+  let mut sensor = Max3010x::new_max30102(dev);
+  let mut sensor = sensor.into_heart_rate().unwrap();
+  sensor.set_sample_averaging(SampleAveraging::Sa4).unwrap();
+  sensor.set_pulse_amplitude(Led::All, 15).unwrap();
+  sensor.enable_fifo_rollover().unwrap();
+
+  let mut data = [0; 3];
+  let samples_read = sensor.read_fifo(&mut data).unwrap();
+
+  // get the I2C device back
+  let dev = max30102.destroy();
+}
 ```
 
 ## Support
