@@ -1,3 +1,4 @@
+extern crate embedded_hal_mock as hal;
 extern crate max3010x;
 use max3010x::Error;
 
