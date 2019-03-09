@@ -66,22 +66,9 @@ impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
-    /// Trigger a software reset
-    pub fn reset(&mut self) -> Result<(), Error<E>> {
-        let mode = self.mode.with_high(BF::RESET);
-        self.write_data(&[Reg::MODE, mode.bits])
-    }
-
-    /// Put the device in power-save mode.
-    pub fn shutdown(&mut self) -> Result<(), Error<E>> {
-        let mode = self.mode.with_high(BF::SHUTDOWN);
-        self.change_mode(mode)
-    }
-
-    /// Wake up from power-save mode.
-    pub fn wake_up(&mut self) -> Result<(), Error<E>> {
-        let mode = self.mode.with_low(BF::SHUTDOWN);
-        self.change_mode(mode)
+    /// Resets the FIFO read and write pointers and overflow counter to 0.
+    pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
+        self.write_data(&[Reg::FIFO_WR_PTR, 0, 0, 0])
     }
 
     /// Set sample averaging
@@ -103,6 +90,34 @@ where
         Ok(())
     }
 
+    /// Trigger a software reset
+    pub fn reset(&mut self) -> Result<(), Error<E>> {
+        let mode = self.mode.with_high(BF::RESET);
+        self.write_data(&[Reg::MODE, mode.bits])
+    }
+
+    /// Put the device in power-save mode.
+    pub fn shutdown(&mut self) -> Result<(), Error<E>> {
+        let mode = self.mode.with_high(BF::SHUTDOWN);
+        self.change_mode(mode)
+    }
+
+    /// Wake up from power-save mode.
+    pub fn wake_up(&mut self) -> Result<(), Error<E>> {
+        let mode = self.mode.with_low(BF::SHUTDOWN);
+        self.change_mode(mode)
+    }
+
+    high_low_flag_impl!(
+        enable_fifo_rollover,
+        "Enable FIFO rollover",
+        disable_fifo_rollover,
+        "Disable FIFO rollover",
+        FIFO_CONFIG,
+        fifo_config,
+        FIFO_ROLLOVER_EN
+    );
+
     /// Set number of empty data samples available in the FIFO
     /// when a FIFO-almost-full interrupt will be issued.
     pub fn set_fifo_almost_full_level_interrupt(
@@ -117,21 +132,6 @@ where
         self.fifo_config = fifo_config;
         Ok(())
     }
-
-    /// Resets the FIFO read and write pointers and overflow counter to 0.
-    pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
-        self.write_data(&[Reg::FIFO_WR_PTR, 0, 0, 0])
-    }
-
-    high_low_flag_impl!(
-        enable_fifo_rollover,
-        "Enable FIFO rollover",
-        disable_fifo_rollover,
-        "Disable FIFO rollover",
-        FIFO_CONFIG,
-        fifo_config,
-        FIFO_ROLLOVER_EN
-    );
 
     high_low_flag_impl!(
         enable_fifo_almost_full_interrupt,
@@ -276,6 +276,29 @@ where
     }
 }
 
+impl<I2C, E, IC> Max3010x<I2C, IC, marker::mode::Oximeter>
+where
+    I2C: i2c::Write<Error = E>,
+{
+    /// Configure analog-to-digital converter range. (Only available in Oximeter mode)
+    pub fn set_adc_range(&mut self, range: AdcRange) -> Result<(), Error<E>> {
+        use AdcRange::*;
+        let new_config = self
+            .spo2_config
+            .with_low(BF::ADC_RGE0)
+            .with_low(BF::ADC_RGE1);
+        let new_config = match range {
+            Fs2k => new_config,
+            Fs4k => new_config.with_high(BF::ADC_RGE0),
+            Fs8k => new_config.with_high(BF::ADC_RGE1),
+            Fs16k => new_config.with_high(BF::ADC_RGE0).with_high(BF::ADC_RGE1),
+        };
+        self.write_data(&[Reg::SPO2_CONFIG, new_config.bits])?;
+        self.spo2_config = new_config;
+        Ok(())
+    }
+}
+
 #[doc(hidden)]
 pub trait HasDataReadyInterrupt {}
 
@@ -296,29 +319,6 @@ where
         int_en1,
         PPG_RDY_INT
     );
-}
-
-impl<I2C, E, IC> Max3010x<I2C, IC, marker::mode::Oximeter>
-where
-    I2C: i2c::Write<Error = E>,
-{
-    /// Configure analog-to-digital converter range.
-    pub fn set_adc_range(&mut self, range: AdcRange) -> Result<(), Error<E>> {
-        use AdcRange::*;
-        let new_config = self
-            .spo2_config
-            .with_low(BF::ADC_RGE0)
-            .with_low(BF::ADC_RGE1);
-        let new_config = match range {
-            Fs2k => new_config,
-            Fs4k => new_config.with_high(BF::ADC_RGE0),
-            Fs8k => new_config.with_high(BF::ADC_RGE1),
-            Fs16k => new_config.with_high(BF::ADC_RGE0).with_high(BF::ADC_RGE1),
-        };
-        self.write_data(&[Reg::SPO2_CONFIG, new_config.bits])?;
-        self.spo2_config = new_config;
-        Ok(())
-    }
 }
 
 #[cfg(test)]
