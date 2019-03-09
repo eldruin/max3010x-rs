@@ -77,6 +77,55 @@
 //!
 //! [driver-examples]: https://github.com/eldruin/driver-examples
 //!
+//! ### Read samples in heart-rate mode
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate max3010x;
+//! use max3010x::{Max3010x, Led, SampleAveraging};
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor = Max3010x::new_max30102(dev);
+//! let mut sensor = sensor.into_heart_rate().unwrap();
+//! sensor.set_sample_averaging(SampleAveraging::Sa4).unwrap();
+//! sensor.set_pulse_amplitude(Led::All, 15).unwrap();
+//! sensor.enable_fifo_rollover().unwrap();
+//! let mut data = [0; 3];
+//! let samples_read = sensor.read_fifo(&mut data).unwrap();
+//!
+//! // get the I2C device back
+//! let dev = sensor.destroy();
+//! # }
+//! ```
+//!
+//! ### Set led slots in multi-led mode
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate max3010x;
+//! use max3010x::{ Max3010x, Led, TimeSlot };
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut max30102 = Max3010x::new_max30102(dev);
+//! let mut max30102 = max30102.into_multi_led().unwrap();
+//! max30102.set_pulse_amplitude(Led::All, 15).unwrap();
+//! max30102.set_led_time_slots([
+//!     TimeSlot::Led1,
+//!     TimeSlot::Led2,
+//!     TimeSlot::Led1,
+//!     TimeSlot::Disabled
+//! ]).unwrap();
+//! max30102.enable_fifo_rollover().unwrap();
+//! let mut data = [0; 3];
+//! let samples_read = max30102.read_fifo(&mut data).unwrap();
+//!
+//! // get the I2C device back
+//! let dev = max30102.destroy();
+//! # }
+//! ```
+//!
 
 #![deny(missing_docs, unsafe_code)]
 #![no_std]
