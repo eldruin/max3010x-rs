@@ -118,7 +118,7 @@
 //!     TimeSlot::Disabled
 //! ]).unwrap();
 //! max30102.enable_fifo_rollover().unwrap();
-//! let mut data = [0; 3];
+//! let mut data = [0; 2];
 //! let samples_read = max30102.read_fifo(&mut data).unwrap();
 //!
 //! // get the I2C device back
