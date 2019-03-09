@@ -29,7 +29,6 @@
 //!   - Enable/disable the temperature-ready interrupt. See [`enable_temperature_ready_interrupt()`].
 //!   - Enable/disable the new-FIFO-data-ready interrupt. See [`enable_new_fifo_data_ready_interrupt()`].
 //!
-//!
 //! [`get_available_sample_count()`]: struct.Max3010x.html#method.get_available_sample_count
 //! [`get_overflow_sample_count()`]: struct.Max3010x.html#method.get_overflow_sample_count
 //! [`read_fifo()`]: struct.Max3010x.html#method.read_fifo
@@ -54,7 +53,20 @@
 //! [`get_part_id()`]: struct.Max3010x.html#method.get_part_id
 //!
 //! ## The device
-//! TODO
+//! The `MAX30102` is an integrated pulse oximetry and heart-rate monitor module.
+//! It includes internal LEDs, photodetectors, optical elements, and low-noise
+//! electronics with ambient light rejection. The `MAX30102` provides a complete
+//! system solution to ease the design-in process for mobile and
+//! wearable devices.
+//!
+//! The `MAX30102` operates on a single 1.8V power supply and a separate 3.3V
+//! power supply for the internal LEDs. Communication is through a standard
+//! I2C-compatible interface. The module can be shut down through software
+//! with zero standby current, allowing the power rails to remain
+//! powered at all times.
+//!
+//! Datasheet:
+//! - [`MAX30102`](https://datasheets.maximintegrated.com/en/ds/MAX30102.pdf)
 //!
 //! ## Usage examples (see also examples folder)
 //!
