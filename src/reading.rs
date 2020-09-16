@@ -131,8 +131,8 @@ where
     pub fn get_available_sample_count(&mut self) -> Result<u8, Error<E>> {
         let mut data = [0; 3];
         self.read_data(Register::FIFO_WR_PTR, &mut data)?;
-        let wr_ptr = data[0];
-        let rd_ptr = data[2];
+        let wr_ptr = data[0] & 0x1F;
+        let rd_ptr = data[2] & 0x1F;
         let has_rolled_over = rd_ptr > wr_ptr;
         if has_rolled_over {
             Ok(32 - rd_ptr + wr_ptr)
@@ -146,7 +146,8 @@ where
     /// If FIFO rollover is not enabled, when the FIFO is full the samples are
     /// not pushed on to the FIFO.
     pub fn get_overflow_sample_count(&mut self) -> Result<u8, Error<E>> {
-        self.read_register(Register::OVF_COUNTER)
+        let v = self.read_register(Register::OVF_COUNTER)?;
+        Ok(v & 0x1F)
     }
 
     /// Perform a temperature measurement.
