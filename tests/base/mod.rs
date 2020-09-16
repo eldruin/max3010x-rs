@@ -41,7 +41,7 @@ impl BitFlags {
 pub fn new(
     transactions: &[I2cTrans],
 ) -> Max3010x<I2cMock, marker::ic::Max30102, marker::mode::None> {
-    Max3010x::new_max30102(I2cMock::new(&transactions))
+    Max3010x::new_max30102(I2cMock::new(transactions))
 }
 
 pub fn destroy<IC, MODE>(sensor: Max3010x<I2cMock, IC, MODE>) {
