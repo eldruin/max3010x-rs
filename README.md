@@ -4,7 +4,6 @@
 [![Docs](https://docs.rs/max3010x/badge.svg)](https://docs.rs/max3010x)
 [![Build Status](https://travis-ci.org/eldruin/max3010x-rs.svg?branch=master)](https://travis-ci.org/eldruin/max3010x-rs)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/max3010x-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/max3010x-rs?branch=master)
-![Maintenance Intention](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
 
 This is a platform agnostic Rust driver for the MAX3010x high-sensitivity
 pulse oximeter and heart-rate sensor for wearable health, based on the
