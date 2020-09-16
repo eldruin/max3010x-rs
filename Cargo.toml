@@ -10,14 +10,6 @@ keywords = ["heart", "oximeter", "health", "driver", "embedded-hal-driver"]
 categories = ["embedded", "hardware-support", "no-std"]
 homepage = "https://github.com/eldruin/max3010x-rs"
 documentation = "https://docs.rs/max3010x"
-include = [
-    "**/*.rs",
-    "/Cargo.toml",
-    "/README.md",
-    "/CHANGELOG.md",
-    "/LICENSE-MIT",
-    "/LICENSE-APACHE",
-]
 
 [badges]
 travis-ci = { repository = "eldruin/max3010x-rs", branch = "master" }
