@@ -12,7 +12,6 @@ homepage = "https://github.com/eldruin/max3010x-rs"
 documentation = "https://docs.rs/max3010x"
 
 [badges]
-travis-ci = { repository = "eldruin/max3010x-rs", branch = "master" }
 coveralls = { repository = "eldruin/max3010x-rs", branch = "master", service = "github" }
 
 [dependencies]
