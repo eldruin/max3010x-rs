@@ -38,7 +38,7 @@ macro_rules! flip_flag_method_impl {
             self.$reg_variable = $reg_variable;
             Ok(())
         }
-    }
+    };
 }
 
 macro_rules! high_low_flag_impl {
