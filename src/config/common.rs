@@ -216,7 +216,7 @@ impl ValidateSrPw for marker::mode::Oximeter {
     }
 }
 
-impl ValidateSrPw for marker::mode::MultiLED {
+impl ValidateSrPw for marker::mode::MultiLed {
     fn check<E>(_width: LedPulseWidth, _rate: SamplingRate) -> Result<(), Error<E>> {
         Ok(())
     }

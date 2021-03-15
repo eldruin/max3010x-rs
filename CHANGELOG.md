@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- [breaking-change] Renamed `mode::MultiLED` mode marker `mode::MultiLed` due to naming conventions.
+
 ### Fixed
 - Masking reserved bitfields for FIFO write/read pointer and overflow registers.
 

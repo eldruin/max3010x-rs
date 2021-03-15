@@ -19,7 +19,7 @@ impl ChannelCount<marker::ic::Max30102, marker::mode::Oximeter> for marker::mode
     const CHANNEL_COUNT: u8 = 2;
 }
 
-impl ChannelCount<marker::ic::Max30102, marker::mode::MultiLED> for marker::mode::MultiLED {
+impl ChannelCount<marker::ic::Max30102, marker::mode::MultiLed> for marker::mode::MultiLed {
     const CHANNEL_COUNT: u8 = 2;
 }
 

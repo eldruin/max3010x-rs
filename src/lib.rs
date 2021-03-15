@@ -353,7 +353,7 @@ pub mod marker {
         pub struct None(());
         pub struct HeartRate(());
         pub struct Oximeter(());
-        pub struct MultiLED(());
+        pub struct MultiLed(());
     }
     pub mod ic {
         pub struct Max30102(());
@@ -418,7 +418,7 @@ mod private {
 
     impl Sealed for marker::mode::HeartRate {}
     impl Sealed for marker::mode::Oximeter {}
-    impl Sealed for marker::mode::MultiLED {}
+    impl Sealed for marker::mode::MultiLed {}
 
     impl Sealed for marker::ic::Max30102 {}
 }

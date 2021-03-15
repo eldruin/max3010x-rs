@@ -58,7 +58,7 @@ where
     /// This changes the mode and clears the FIFO data.
     pub fn into_multi_led(
         mut self,
-    ) -> Result<Max3010x<I2C, marker::ic::Max30102, marker::mode::MultiLED>, Error<E>> {
+    ) -> Result<Max3010x<I2C, marker::ic::Max30102, marker::mode::MultiLed>, Error<E>> {
         let mode = self.mode.with_high(0b0000_0111);
         self.change_mode(mode)?;
         self.clear_fifo()?;
@@ -99,7 +99,7 @@ impl TimeSlot {
     }
 }
 
-impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::MultiLED>
+impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::MultiLed>
 where
     I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
 {
