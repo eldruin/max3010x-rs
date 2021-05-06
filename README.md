@@ -77,7 +77,7 @@ fn main() {
   let samples_read = sensor.read_fifo(&mut data).unwrap();
 
   // get the I2C device back
-  let dev = max30102.destroy();
+  let dev = sensor.destroy();
 }
 ```
 
