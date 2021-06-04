@@ -11,9 +11,6 @@ categories = ["embedded", "hardware-support", "no-std"]
 homepage = "https://github.com/eldruin/max3010x-rs"
 documentation = "https://docs.rs/max3010x"
 
-[badges]
-coveralls = { repository = "eldruin/max3010x-rs", branch = "master", service = "github" }
-
 [dependencies]
 embedded-hal = "0.2"
 nb = "1"
