@@ -3,7 +3,7 @@ use crate::{
     marker, private, AdcRange, BitFlags as BF, Config, Error, FifoAlmostFullLevelInterrupt,
     LedPulseWidth, Max3010x, Register as Reg, SampleAveraging, SamplingRate,
 };
-use hal::blocking::i2c;
+use hal::i2c;
 
 impl FifoAlmostFullLevelInterrupt {
     fn get_register_value(self) -> u8 {
@@ -64,7 +64,7 @@ macro_rules! high_low_flag_impl {
 
 impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Resets the FIFO read and write pointers and overflow counter to 0.
     pub fn clear_fifo(&mut self) -> Result<(), Error<E>> {
@@ -224,7 +224,7 @@ impl ValidateSrPw for marker::mode::MultiLed {
 
 impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
     MODE: ValidateSrPw,
 {
     /// Configure the LED pulse width.
@@ -278,7 +278,7 @@ where
 
 impl<I2C, E, IC> Max3010x<I2C, IC, marker::mode::Oximeter>
 where
-    I2C: i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Configure analog-to-digital converter range. (Only available in Oximeter mode)
     pub fn set_adc_range(&mut self, range: AdcRange) -> Result<(), Error<E>> {
@@ -307,7 +307,7 @@ impl HasDataReadyInterrupt for marker::mode::Oximeter {}
 
 impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
-    I2C: i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
     MODE: HasDataReadyInterrupt,
 {
     high_low_flag_impl!(

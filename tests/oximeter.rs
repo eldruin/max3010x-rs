@@ -1,5 +1,5 @@
 extern crate embedded_hal_mock as hal;
-use hal::i2c::Transaction as I2cTrans;
+use hal::eh1::i2c::Transaction as I2cTrans;
 extern crate max3010x;
 use max3010x::{AdcRange, LedPulseWidth as LedPw, SamplingRate as SR};
 mod base;

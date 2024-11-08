@@ -1,7 +1,3 @@
-extern crate embedded_hal;
-extern crate linux_embedded_hal;
-extern crate max3010x;
-
 use linux_embedded_hal::I2cdev;
 use max3010x::{Led, Max3010x, SampleAveraging};
 

@@ -131,7 +131,7 @@
 #![no_std]
 
 extern crate embedded_hal as hal;
-use hal::blocking::i2c;
+use hal::i2c;
 extern crate nb;
 use core::marker::PhantomData;
 
@@ -377,7 +377,7 @@ pub struct Max3010x<I2C, IC, MODE> {
 
 impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::None>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Create new instance of the MAX3010x device.
     pub fn new_max30102(i2c: I2C) -> Self {
@@ -397,7 +397,7 @@ where
 
 impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
-    I2C: i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Destroy driver instance, return I²C bus instance.
     pub fn destroy(self) -> I2C {

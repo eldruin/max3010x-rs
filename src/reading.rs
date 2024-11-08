@@ -4,7 +4,7 @@ use super::{
     marker, private, BitFlags, Error, InterruptStatus, LedPulseWidth, Max3010x, Register,
     SamplingRate, DEVICE_ADDRESS,
 };
-use hal::blocking::i2c;
+use hal::i2c;
 
 #[doc(hidden)]
 pub trait ChannelCount<IC, MODE>: private::Sealed {
@@ -25,7 +25,7 @@ impl ChannelCount<marker::ic::Max30102, marker::mode::MultiLed> for marker::mode
 
 impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
     MODE: ChannelCount<IC, MODE>,
 {
     /// Reads samples from FIFO.
@@ -125,7 +125,7 @@ fn convert_sampling_rate(spo2_config: u8) -> SamplingRate {
 
 impl<I2C, E, IC, MODE> Max3010x<I2C, IC, MODE>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Get number of samples available for reading from FIFO.
     pub fn get_available_sample_count(&mut self) -> Result<u8, Error<E>> {
