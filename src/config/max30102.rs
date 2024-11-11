@@ -1,11 +1,11 @@
 //! Max30102-specific configuration methods.
 use crate::{marker, Error, Led, Max3010x, Register as Reg, TimeSlot};
 use core::marker::PhantomData;
-use hal::blocking::i2c;
+use hal::i2c;
 
 impl<I2C, E, MODE> Max3010x<I2C, marker::ic::Max30102, MODE>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Change into heart-rate mode.
     ///
@@ -101,7 +101,7 @@ impl TimeSlot {
 
 impl<I2C, E> Max3010x<I2C, marker::ic::Max30102, marker::mode::MultiLed>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Configure LED time slots in Multi-LED mode
     ///

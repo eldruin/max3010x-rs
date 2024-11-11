@@ -1,6 +1,7 @@
 [package]
 name = "max3010x"
-version = "0.1.0"
+edition = "2021"
+version = "0.2.0"
 authors = ["Diego Barrios Romero <eldruin@gmail.com>"]
 repository = "https://github.com/eldruin/max3010x-rs"
 license = "MIT OR Apache-2.0"
@@ -12,12 +13,12 @@ homepage = "https://github.com/eldruin/max3010x-rs"
 documentation = "https://docs.rs/max3010x"
 
 [dependencies]
-embedded-hal = "0.2.5"
+embedded-hal = "1.0.0"
 nb = "1"
 
 [dev-dependencies]
-linux-embedded-hal = "0.3"
-embedded-hal-mock = "0.7"
+linux-embedded-hal = "0.4"
+embedded-hal-mock = "0.11.1"
 
 [profile.release]
 lto = true

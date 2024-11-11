@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
+- MSRV bumped to 1.60 (required by `embedded-hal` 1.0.0)
+- [breaking-change] Update `embedded-hal` to version 1.0.0
 - [breaking-change] Renamed `mode::MultiLED` mode marker `mode::MultiLed` due to naming conventions.
 
 ### Fixed
