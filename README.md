@@ -2,6 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/max3010x.svg)](https://crates.io/crates/max3010x)
 [![Docs](https://docs.rs/max3010x/badge.svg)](https://docs.rs/max3010x)
+![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.62+-blue.svg)
 [![Build Status](https://github.com/eldruin/max3010x-rs/workflows/Build/badge.svg)](https://github.com/eldruin/max3010x-rs/actions?query=workflow%3ABuild)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/max3010x-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/max3010x-rs?branch=master)
 
@@ -87,6 +88,11 @@ fn main() {
 - [ ] Compatibility with MAX30101
 - [ ] Compatibility with MAX30105
 
+## Minimum Supported Rust Version (MSRV)
+
+This crate is guaranteed to compile on stable Rust 1.62.0 and up. It *might*
+compile with older versions but that may change in any new patch release.
+
 ## Support
 
 For questions, issues, feature requests, and other changes, please file an
@@ -108,4 +114,3 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
-
