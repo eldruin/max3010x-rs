@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [0.2.0] - 2024-12-02
+
 ### Changed
 - [breaking-change] Update `embedded-hal` to version 1.0.0
 - [breaking-change] Renamed `mode::MultiLED` mode marker `mode::MultiLed` due to naming conventions.
@@ -22,4 +24,5 @@ This is the initial release of the driver to crates.io. All changes will
 be documented in this CHANGELOG.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/eldruin/max3010x-rs/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/eldruin/max3010x-rs/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/eldruin/max3010x-rs/compare/v0.1.0...v0.2.0
